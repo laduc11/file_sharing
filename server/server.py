@@ -15,10 +15,15 @@ def client_handle(conn, addr):
     print(f"New connection: {addr[0]}")
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
+        if data == "":
+            continue
+
         if data == "CLOSE":
             # Close the server
             print(f"{addr[0]} disconnected")
             os._exit(os.EX_OK)
+        
+        print(data)     # DEBUG
         
     
 
