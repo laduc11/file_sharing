@@ -8,9 +8,10 @@ ADDR = (IP_ADDR, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 
+
 def main():
-    client_welcom = ADDR
-    print(client_welcom)
+    client_welcome = ADDR
+    print(client_welcome)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
     client.send(IP.encode(ENCODING))
@@ -22,6 +23,7 @@ def main():
         else:
             print("Syntax error")
         
+
 
 
 

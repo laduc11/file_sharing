@@ -23,6 +23,7 @@ def client_handle(conn, addr):
     
 
 
+
 def main():
     print("Server is online")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,6 +40,7 @@ def main():
         # Create threads for clients
         thread = threading.Thread(target=client_handle, args=(conn, addr))
         thread.start()
+
 
 
 if __name__ == "__main__":
