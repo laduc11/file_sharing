@@ -8,7 +8,6 @@ PORT = 5500
 ADDR = (IP, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
-
 DATA_PATH = "data/"
 
 # Catch command from client
