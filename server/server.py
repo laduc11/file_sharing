@@ -19,9 +19,17 @@ def file_manage():
     return db
 
 
+def add_file(db, ip, client_name, filename):
+    db.add(ip, client_name, filename)
+
+
+def del_file(db, ip, filename):
+    db.delete_file(ip, filename)
+
+
 # Catch command from client
-def client_handle(conn, addr, db, name):
-    print(f"New connection: {name}, {addr[0]}")
+def client_handle(conn, addr, db, client_name):
+    print(f"New connection: {client_name}, {addr[0]}")
     is_close = False
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
@@ -48,12 +56,16 @@ def client_handle(conn, addr, db, name):
             # Add new file into server table
             # Data: Name of file which need to be added
             # Client's IP = addr[0]
+            # Filename = data
+            add_file(db, addr[0], client_name, data)
             print("add")
             conn.send("OK$ADD FILE SUCCESSFULLY".encode(ENCODING))
         elif command == "DELETE":
             # Delete file from server table
             # Data: Name of file which need to be deleted
             # Client's IP = addr[0]
+            # File name = data
+            del_file(db, addr[0], data)
             print("delete")
             conn.send("OK$DELETE FILE SUCCESSFULLY".encode(ENCODING))
         elif command == "LIST":
@@ -66,10 +78,8 @@ def client_handle(conn, addr, db, name):
     
     conn.close()
     if is_close:
+        db.close_server()
         os._exit(os.EX_OK)
-        
-    
-
 
 
 def main():
@@ -84,12 +94,12 @@ def main():
 
         # Get IP and name of client
         data = conn.recv(SIZE).decode(ENCODING)
-        ip, name = data.split("$")
+        ip, client_name = data.split("$")
         addr = (ip, addr[1])
         conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
-        thread = threading.Thread(target=client_handle, args=(conn, addr, db, name))
+        thread = threading.Thread(target=client_handle, args=(conn, addr, db, client_name))
         thread.start()
 
 
