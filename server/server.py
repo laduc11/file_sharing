@@ -6,11 +6,7 @@ import threading
 import file_manage as fm
 
 IP = socket.gethostbyname(socket.gethostname())
-<<<<<<< HEAD
 PORT = 16607
-=======
-PORT = 160607
->>>>>>> 84ae46e5fb3ca1fc7fe7b8fbef554e15ba23b683
 ADDR = (IP, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
@@ -24,13 +20,8 @@ def file_manage():
 
 
 # Catch command from client
-<<<<<<< HEAD
 def client_handle(conn, addr, db, name):
     print(f"New connection: {name}, {addr[0]}")
-=======
-def client_handle(conn, addr, name):
-    print(f"New connection: {addr[0]}")
->>>>>>> 84ae46e5fb3ca1fc7fe7b8fbef554e15ba23b683
     is_close = False
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
@@ -98,11 +89,7 @@ def main():
         conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
-<<<<<<< HEAD
         thread = threading.Thread(target=client_handle, args=(conn, addr, db, name))
-=======
-        thread = threading.Thread(target=client_handle, args=(conn, addr, name))
->>>>>>> 84ae46e5fb3ca1fc7fe7b8fbef554e15ba23b683
         thread.start()
 
 
