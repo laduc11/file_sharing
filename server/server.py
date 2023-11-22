@@ -13,17 +13,47 @@ DATA_PATH = "data/"
 # Catch command from client
 def client_handle(conn, addr):
     print(f"New connection: {addr[0]}")
+    is_close = False
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
-        if data == "":
-            continue
+        data = data.split("$")
+        if len(data) == 2:
+            command, data = data
+        else:
+            command = data[0]
 
-        if data == "CLOSE":
+        if command == "CLOSE":
             # Close the server
-            print(f"{addr[0]} disconnected")
-            os._exit(os.EX_OK)
-        
+            print(f"server {ADDR} is closed")
+            is_close = True
+            break
+        elif command == "LOGOUT":
+            # Disconnect to the server
+            conn.send(f"{addr[0]} disconnected".encode(ENCODING))
+            break
+        elif command == "ADD":
+            # Add new file into server table
+            # Data: Name of file which need to be added
+            # Client's IP = addr[0]
+            print("add")
+            conn.send("OK$ADD FILE SUCCESSFULLY".encode(ENCODING))
+        elif command == "DELETE":
+            # Delete file from server table
+            # Data: Name of file which need to be deleted
+            # Client's IP = addr[0]
+            print("delete")
+            conn.send("OK$DELETE FILE SUCCESSFULLY".encode(ENCODING))
+        elif command == "LIST":
+            # Send server table to client
+            # Syntax "OK$<server table>"
+            print("list")
+            conn.send("OK$LIST SUCCESSFULLY".encode(ENCODING))
+
         print(data)     # DEBUG
+    
+    conn.close()
+    if is_close:
+        os._exit(os.EX_OK)
         
     
 
@@ -41,6 +71,7 @@ def main():
         # Get IP of client
         data = conn.recv(SIZE).decode(ENCODING)
         addr = (data ,addr[1])
+        conn.send(f"OK$Welcome to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
         thread = threading.Thread(target=client_handle, args=(conn, addr))
