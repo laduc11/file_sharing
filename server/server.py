@@ -2,6 +2,8 @@ import socket
 import os
 import threading
 
+import file_manage as fm
+
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5500
 ADDR = (IP, PORT)
@@ -11,6 +13,7 @@ ENCODING = "utf-8"
 
 def main():
     print("Server is online")
+
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(ADDR)
     server.listen()
