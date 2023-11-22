@@ -1,7 +1,7 @@
 import socket
 import os
 import threading
-import sys
+# import sys
 
 import file_manage as fm
 
@@ -12,23 +12,28 @@ SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
 
+
+# Create and set up database
+def file_manage():
+    db = fm.Sql()
+    return db
+
+
 # Catch command from client
-def client_handle(conn, addr):
+def client_handle(conn, addr, db):
     print(f"New connection: {addr[0]}")
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
         if data == "CLOSE":
             # Close the server
             print(f"{addr[0]} disconnected")
+            db.close_server()
             os._exit(os.EX_OK)
-        
-    
-
 
 
 def main():
     print("Server is online")
-
+    db = file_manage()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(ADDR)
     server.listen()
@@ -38,12 +43,11 @@ def main():
 
         # Get IP of client
         data = conn.recv(SIZE).decode(ENCODING)
-        addr = (data ,addr[1])
+        addr = (data, addr[1])
 
         # Create threads for clients
         thread = threading.Thread(target=client_handle, args=(conn, addr))
         thread.start()
-
 
 
 if __name__ == "__main__":
