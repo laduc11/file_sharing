@@ -1,9 +1,10 @@
 import socket
 import os
 
-IP = socket.gethostbyname(socket.gethostname())
+HOST_NAME = socket.gethostname()
+IP = socket.gethostbyname(HOST_NAME)
 IP_DST = "10.230.20.207"
-PORT = 5500
+PORT = 160607
 ADDR = (IP_DST, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
@@ -15,7 +16,7 @@ def main():
     print(server_addr)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
-    client.send(IP.encode(ENCODING))
+    client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
     while True:
         # Client recieve request from server
         command = client.recv(SIZE).decode(ENCODING)

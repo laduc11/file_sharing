@@ -4,14 +4,14 @@ import threading
 import sys
 
 IP = socket.gethostbyname(socket.gethostname())
-PORT = 5500
+PORT = 160607
 ADDR = (IP, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
 
 # Catch command from client
-def client_handle(conn, addr):
+def client_handle(conn, addr, name):
     print(f"New connection: {addr[0]}")
     is_close = False
     while True:
@@ -70,11 +70,12 @@ def main():
 
         # Get IP of client
         data = conn.recv(SIZE).decode(ENCODING)
-        addr = (data ,addr[1])
-        conn.send(f"OK$Welcome to {ADDR}".encode(ENCODING))
+        ip, name = data.split("$")
+        addr = (ip, addr[1])
+        conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
-        thread = threading.Thread(target=client_handle, args=(conn, addr))
+        thread = threading.Thread(target=client_handle, args=(conn, addr, name))
         thread.start()
 
 
