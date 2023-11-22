@@ -1,4 +1,5 @@
 import socket
+import threading
 import os
 
 HOST_NAME = socket.gethostname()
@@ -9,14 +10,34 @@ ADDR = (IP_DST, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
+TIME_COUNTER = 10   # 10s
 
 
+# Wait for connection
+def wait(client_host):
+    client_host.bind((IP, PORT))
+    client_host.listen()
+    conn, addr = client_host.accept()
+    
+    data = conn.recv(SIZE).decode(ENCODING)
+    
+    if data == "PING":
+        client_host.send("ACCEPT".encode(ENCODING))
+        client_host.close()
+
+        
 def main():
+    # Create environment
     server_addr = ADDR
     print(server_addr)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
     client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
+
+    # Create thread to catch message from another host
+    host_thread = threading.Thread(target=wait, args=client)
+    host_thread.start()
+
     while True:
         # Client recieve request from server
         command = client.recv(SIZE).decode(ENCODING)

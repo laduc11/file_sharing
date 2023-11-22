@@ -27,6 +27,24 @@ def del_file(db, ip, filename):
     db.delete_file(ip, filename)
 
 
+# Ping to client
+# Return True if client is online
+def ping(ip):
+    try:
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect((ip, PORT))
+    except Exception:
+        print("Client is offline")
+        return False
+
+    server.send("PING".encode(ENCODING))
+    data = server.recv(SIZE).decode(ENCODING)
+    if data == "ACCEPT":
+        return True
+    print("Client is not accept to connect")
+    return False
+
+
 # Catch command from client
 def client_handle(conn, addr, db, client_name):
     print(f"New connection: {client_name}, {addr[0]}")
@@ -39,7 +57,7 @@ def client_handle(conn, addr, db, client_name):
             command, data = data
         else:
             command = data[0]
-        # print(command)
+        
 
         if command == "CLOSE":
             # Close the server
@@ -73,6 +91,15 @@ def client_handle(conn, addr, db, client_name):
             # Syntax "OK$<server table>"
             print("list")
             conn.send("OK$LIST SUCCESSFULLY".encode(ENCODING))
+        elif command == "DOWNLOAD":
+            # Syntax DOWNLOAD$<file_name>&<client's IP>
+            # Download the file from client that have <IP>
+
+            # Check client's status
+            ping(addr[0])
+
+            print("download")
+            conn.send("OK$Download successfully")
 
         print(data)     # DEBUG
     
