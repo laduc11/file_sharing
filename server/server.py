@@ -6,7 +6,7 @@ import threading
 import file_manage as fm
 
 IP = socket.gethostbyname(socket.gethostname())
-PORT = 5500
+PORT = 16607
 ADDR = (IP, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
@@ -27,26 +27,48 @@ def del_file(db, ip, filename):
     db.delete_file(ip, filename)
 
 
+# Ping to client
+# Return True if client is online
+def ping(ip):
+    try:
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect((ip, PORT))
+    except Exception:
+        print("Client is offline")
+        return False
+
+    server.send("PING".encode(ENCODING))
+    data = server.recv(SIZE).decode(ENCODING)
+    if data == "ACCEPT":
+        return True
+    print("Client is not accept to connect")
+    return False
+
+
 # Catch command from client
-def client_handle(conn, addr, db):
-    print(f"New connection: {addr[0]}")
+def client_handle(conn, addr, db, client_name):
+    print(f"New connection: {client_name}, {addr[0]}")
     is_close = False
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
         data = data.split("$")
+        
         if len(data) == 2:
             command, data = data
         else:
             command = data[0]
+        
 
         if command == "CLOSE":
             # Close the server
-            print(f"server {ADDR} is closed")
+            print(f"Server {ADDR} is closed")
             is_close = True
+            conn.send(f"DISCONNECTED$Server {ADDR} is closed".encode(ENCODING))
             break
         elif command == "LOGOUT":
             # Disconnect to the server
-            conn.send(f"{addr[0]} disconnected".encode(ENCODING))
+            print(f"Client's IP {addr[0]} is disconnected")
+            conn.send(f"DISCONNECTED${addr[0]} disconnected".encode(ENCODING))
             break
         elif command == "ADD":
             # Add new file into server table
@@ -69,6 +91,15 @@ def client_handle(conn, addr, db):
             # Syntax "OK$<server table>"
             print("list")
             conn.send("OK$LIST SUCCESSFULLY".encode(ENCODING))
+        elif command == "DOWNLOAD":
+            # Syntax DOWNLOAD$<file_name>&<client's IP>
+            # Download the file from client that have <IP>
+
+            # Check client's status
+            ping(addr[0])
+
+            print("download")
+            conn.send("OK$Download successfully")
 
         print(data)     # DEBUG
     
@@ -88,13 +119,14 @@ def main():
     while True:
         conn, addr = server.accept()
 
-        # Get IP of client
+        # Get IP and name of client
         data = conn.recv(SIZE).decode(ENCODING)
-        addr = (data ,addr[1])
-        conn.send(f"OK$Welcome to {ADDR}".encode(ENCODING))
+        ip, client_name = data.split("$")
+        addr = (ip, addr[1])
+        conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
-        thread = threading.Thread(target=client_handle, args=(conn, addr, db))
+        thread = threading.Thread(target=client_handle, args=(conn, addr, db, client_name))
         thread.start()
 
 

@@ -1,21 +1,43 @@
 import socket
+import threading
 import os
 
-IP = socket.gethostbyname(socket.gethostname())
-IP_DST = "10.230.20.207"
-PORT = 5500
+HOST_NAME = socket.gethostname()
+IP = socket.gethostbyname(HOST_NAME)
+IP_DST = "10.0.189.56"
+PORT = 16607
 ADDR = (IP_DST, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
+TIME_COUNTER = 10   # 10s
 
 
+# Wait for connection
+def wait(client_host):
+    client_host.bind((IP, PORT))
+    client_host.listen()
+    conn, addr = client_host.accept()
+    
+    data = conn.recv(SIZE).decode(ENCODING)
+    
+    if data == "PING":
+        client_host.send("ACCEPT".encode(ENCODING))
+        client_host.close()
+
+        
 def main():
+    # Create environment
     server_addr = ADDR
     print(server_addr)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
-    client.send(IP.encode(ENCODING))
+    client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
+
+    # Create thread to catch message from another host
+    host_thread = threading.Thread(target=wait, args=client)
+    host_thread.start()
+
     while True:
         # Client recieve request from server
         command = client.recv(SIZE).decode(ENCODING)
@@ -43,11 +65,13 @@ def main():
         # Finite machine state
         if command == "CLOSE":
             # Close server
-            print("Server is close")
+            print("Server is closing")
+            client.send(command.encode(ENCODING))
             break
         elif command == "LOGOUT":
             # Disconnect from server
             print(f"{IP} is disconnecting")
+            client.send(f"{command}".encode(ENCODING))
         elif command == "ADD":
             # Public file in server
             if file_name == ".":
@@ -86,8 +110,7 @@ def main():
             print("LIST: list all the file which the server can reach")
         else:
             print("Syntax Error")
-        
-    client.send(command.encode(ENCODING))
+    
     os._exit(os.EX_OK)
 
         
