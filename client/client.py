@@ -3,13 +3,8 @@ import os
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-<<<<<<< HEAD
 IP_DST = "10.0.189.56"
 PORT = 16607
-=======
-IP_DST = "10.230.20.207"
-PORT = 160607
->>>>>>> 84ae46e5fb3ca1fc7fe7b8fbef554e15ba23b683
 ADDR = (IP_DST, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
