@@ -7,8 +7,8 @@ class Sql:
         self.table_name = "File_manage"
         self.cursor = self.db.cursor()
         self.exist = False
-        if not self.exist:
-            self.create_table()
+        self.drop_table()
+        self.create_table()
 
     def create_table(self):
         self.cursor.execute(
@@ -20,9 +20,9 @@ class Sql:
         )
         self.exist = True
 
-    # def drop_table(self):
-    #     self.cursor.execute(f"DROP TABLE IF EXISTS {self.table_name}")
-    #     self.db.commit()
+    def drop_table(self):
+        self.cursor.execute(f"DROP TABLE IF EXISTS {self.table_name}")
+        self.db.commit()
 
     def add(self, ip, client, file):
         if client != "":
