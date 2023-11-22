@@ -11,8 +11,8 @@ DATA_PATH = "data/"
 
 
 def main():
-    client_welcome = ADDR
-    print(client_welcome)
+    server_addr = ADDR
+    print(server_addr)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
     client.send(IP.encode(ENCODING))
@@ -74,9 +74,7 @@ def main():
             client.send(f"{command}${file_name}".encode(ENCODING))
         elif command == "LIST":
             # List  all file in the server table
-            if file_name != "":
-                print("Syntax Error")
-                continue
+            print("doing LIST function")
             client.send(f"{command}".encode(ENCODING))
         elif command == "HELP":
             # Print the guildline
@@ -84,7 +82,7 @@ def main():
             print("DELETE$<file_name>: delete file from server")
             print("LOGOUT: disconnect to server")
             print("CLOSE: disconnect and close the server")
-            print("DOWNLOAD$<file_name>$<client's IP>")
+            print("DOWNLOAD$<file_name>&<client's IP>")
             print("LIST: list all the file which the server can reach")
         else:
             print("Syntax Error")
