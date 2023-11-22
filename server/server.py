@@ -19,6 +19,14 @@ def file_manage():
     return db
 
 
+def add_file(db, ip, client_name, filename):
+    db.add(ip, client_name, filename)
+
+
+def del_file(db, ip, filename):
+    db.delete_file(ip, filename)
+
+
 # Catch command from client
 def client_handle(conn, addr, db):
     print(f"New connection: {addr[0]}")
@@ -44,12 +52,16 @@ def client_handle(conn, addr, db):
             # Add new file into server table
             # Data: Name of file which need to be added
             # Client's IP = addr[0]
+            # Filename = data
+            add_file(db, addr[0], client_name, data)
             print("add")
             conn.send("OK$ADD FILE SUCCESSFULLY".encode(ENCODING))
         elif command == "DELETE":
             # Delete file from server table
             # Data: Name of file which need to be deleted
             # Client's IP = addr[0]
+            # File name = data
+            del_file(db, addr[0], data)
             print("delete")
             conn.send("OK$DELETE FILE SUCCESSFULLY".encode(ENCODING))
         elif command == "LIST":
@@ -62,10 +74,8 @@ def client_handle(conn, addr, db):
     
     conn.close()
     if is_close:
+        db.close_server()
         os._exit(os.EX_OK)
-        
-    
-
 
 
 def main():
@@ -84,7 +94,7 @@ def main():
         conn.send(f"OK$Welcome to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
-        thread = threading.Thread(target=client_handle, args=(conn, addr))
+        thread = threading.Thread(target=client_handle, args=(conn, addr, db))
         thread.start()
 
 
