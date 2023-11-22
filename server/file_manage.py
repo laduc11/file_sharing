@@ -6,9 +6,8 @@ class Sql:
         self.db = sql.connect("client_files.db")
         self.table_name = "File_manage"
         self.cursor = self.db.cursor()
-        self.exist = False
-        if not self.exist:
-            self.create_table()
+        self.drop_table()
+        self.create_table()
 
     def create_table(self):
         self.cursor.execute(
@@ -18,11 +17,11 @@ class Sql:
                 File_name varchar(30),
                 primary key(IP_Address, File_name))"""
         )
-        self.exist = True
 
-    # def drop_table(self):
-    #     self.cursor.execute(f"DROP TABLE IF EXISTS {self.table_name}")
-    #     self.db.commit()
+
+    def drop_table(self):
+        self.cursor.execute(f"DROP TABLE IF EXISTS {self.table_name}")
+        self.db.commit()
 
     def add(self, ip, client, file):
         if client != "":
@@ -40,7 +39,7 @@ class Sql:
     #     self.db.commit()
 
     def search_by_filename(self, filename):
-        self.cursor.execute(f"SELECT * FROM {self.table_name} WHERE File_name = '{filename}'")
+        self.cursor.execute(f"SELECT * FROM {self.table_name} ")
         rows = self.cursor.fetchall()
         for row in rows:
             print(row)
