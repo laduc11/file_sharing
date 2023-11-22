@@ -15,10 +15,7 @@ TIME_COUNTER = 10   # 10s
 
 # Wait for connection
 def wait(client_host):
-    client_host.bind((IP, PORT))
-    client_host.listen()
     conn, addr = client_host.accept()
-    
     data = conn.recv(SIZE).decode(ENCODING)
     
     if data == "PING":

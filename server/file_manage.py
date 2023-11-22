@@ -18,7 +18,6 @@ class Sql:
                 primary key(IP_Address, File_name))"""
         )
 
-
     def drop_table(self):
         self.cursor.execute(f"DROP TABLE IF EXISTS {self.table_name}")
         self.db.commit()
