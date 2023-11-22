@@ -1,4 +1,5 @@
 import socket
+import os
 
 # hostname = socket.gethostname()
 # IPAddr = socket.gethostbyname(socket.gethostname())
@@ -6,7 +7,7 @@ import socket
 
 data = "MinhDuc"
 data = data.split(" ")
-print(len(data))
+print(' '.join(os.listdir("client/")))
 # print(data[1])
 
 data = (5, 10)
