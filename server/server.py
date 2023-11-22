@@ -6,7 +6,7 @@ import threading
 import file_manage as fm
 
 IP = socket.gethostbyname(socket.gethostname())
-PORT = 5500
+PORT = 16607
 ADDR = (IP, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
@@ -20,25 +20,29 @@ def file_manage():
 
 
 # Catch command from client
-def client_handle(conn, addr, db):
-    print(f"New connection: {addr[0]}")
+def client_handle(conn, addr, db, name):
+    print(f"New connection: {name}, {addr[0]}")
     is_close = False
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
         data = data.split("$")
+        
         if len(data) == 2:
             command, data = data
         else:
             command = data[0]
+        # print(command)
 
         if command == "CLOSE":
             # Close the server
-            print(f"server {ADDR} is closed")
+            print(f"Server {ADDR} is closed")
             is_close = True
+            conn.send(f"DISCONNECTED$Server {ADDR} is closed".encode(ENCODING))
             break
         elif command == "LOGOUT":
             # Disconnect to the server
-            conn.send(f"{addr[0]} disconnected".encode(ENCODING))
+            print(f"Client's IP {addr[0]} is disconnected")
+            conn.send(f"DISCONNECTED${addr[0]} disconnected".encode(ENCODING))
             break
         elif command == "ADD":
             # Add new file into server table
@@ -78,13 +82,14 @@ def main():
     while True:
         conn, addr = server.accept()
 
-        # Get IP of client
+        # Get IP and name of client
         data = conn.recv(SIZE).decode(ENCODING)
-        addr = (data ,addr[1])
-        conn.send(f"OK$Welcome to {ADDR}".encode(ENCODING))
+        ip, name = data.split("$")
+        addr = (ip, addr[1])
+        conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
-        thread = threading.Thread(target=client_handle, args=(conn, addr))
+        thread = threading.Thread(target=client_handle, args=(conn, addr, db, name))
         thread.start()
 
 
