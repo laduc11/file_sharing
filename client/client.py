@@ -31,7 +31,6 @@ def main():
     client.connect(ADDR)
     client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
 
-    # Create thread to catch message from another host
 
     while True:
         # Client receive request from server
@@ -101,6 +100,9 @@ def main():
             # List  all file in the server table
             print("doing LIST function")
             client.send(f"{command}".encode(ENCODING))
+        elif command == "DIR":
+            # List all the file in client repository
+            client.send("LOCAL".encode(ENCODING))
         elif command == "HELP":
             # Print the guildline
             print("ADD$<file_name>: add new file from repository to server")
