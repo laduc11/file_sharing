@@ -19,8 +19,8 @@ def file_manage():
     return db
 
 
-def add_file(db, ip, client_name, filename):
-    db.add(ip, client_name, filename)
+def add_file(db, ip, client_name, filenames):
+    db.add(ip, client_name, filenames)
 
 
 def del_file(db, ip, filename):
