@@ -58,6 +58,7 @@ def client_handle(conn, addr, db, client_name):
 
         if command == "CLOSE":
             # Close the server
+            db.close_server()
             print(f"Server {ADDR} is closed")
             is_close = True
             conn.send(f"DISCONNECTED$Server {ADDR} is closed".encode(ENCODING))
@@ -104,7 +105,6 @@ def client_handle(conn, addr, db, client_name):
     
     conn.close()
     if is_close:
-        db.close_server()
         os._exit(os.EX_OK)
 
 

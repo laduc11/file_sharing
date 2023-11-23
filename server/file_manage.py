@@ -3,7 +3,7 @@ import sqlite3 as sql
 
 class Sql:
     def __init__(self):
-        self.db = sql.connect("client_files.db")
+        self.db = sql.connect("client_files.db", check_same_thread=False)
         self.table_name = "File_manage"
         self.cursor = self.db.cursor()
         self.drop_table()
