@@ -4,7 +4,7 @@ import os
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.189.56"
+IP_DST = "10.0.188.88"
 PORT = 16607
 ADDR = (IP_DST, PORT)
 SIZE = 1024
@@ -32,8 +32,6 @@ def main():
     client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
 
     # Create thread to catch message from another host
-    host_thread = threading.Thread(target=wait, args=client)
-    host_thread.start()
 
     while True:
         # Client recieve request from server
@@ -44,6 +42,9 @@ def main():
         elif command[0] == "DISCONNECTED":
             print(command[1])
             break
+        elif command[0] == "PING":
+            client.send("ACCEPT".encode(ENCODING))
+            continue
 
         # User send request to server
         # Write command

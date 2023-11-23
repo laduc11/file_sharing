@@ -2,9 +2,11 @@ import socket
 import os
 import threading
 
+
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 16607
 ADDR = (IP, PORT)
+SIZE = 1024
 
 # hostname = socket.gethostname()
 # IPAddr = socket.gethostbyname(socket.gethostname())
@@ -22,8 +24,10 @@ def print_Hello():
     print("Hello")
 
 
-try:
-    temp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    temp.connect(ADDR)
-except Exception:
-    print("Can not connect to the server")
+# try:
+#     temp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#     temp.connect(ADDR)
+# except Exception:
+#     print("Can not connect to the server")
+
+print("Hello")

@@ -29,16 +29,14 @@ def del_file(db, ip, filename):
 
 # Ping to client
 # Return True if client is online
-def ping(ip):
+def ping(conn):
     try:
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.connect((ip, PORT))
+        conn.send("PING".encode(ENCODING))
+        data = conn.recv(SIZE).decode(ENCODING)
     except Exception:
         print("Client is offline")
         return False
 
-    server.send("PING".encode(ENCODING))
-    data = server.recv(SIZE).decode(ENCODING)
     if data == "ACCEPT":
         return True
     print("Client is not accept to connect")
@@ -96,10 +94,12 @@ def client_handle(conn, addr, db, client_name):
             # Download the file from client that have <IP>
 
             # Check client's status
-            ping(addr[0])
-
+            conn.send("PING".encode(ENCODING))
+            wait = threading.Timer(2.0, lambda:print(conn.recv(SIZE).decode(ENCODING)))
+            wait.start()
+            
             print("download")
-            conn.send("OK$Download successfully")
+            conn.send("OK$Download successfully".encode(ENCODING))
 
         print(data)     # DEBUG
     
@@ -121,6 +121,7 @@ def main():
 
         # Get IP and name of client
         data = conn.recv(SIZE).decode(ENCODING)
+        print(data)
         ip, client_name = data.split("$")
         addr = (ip, addr[1])
         conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
