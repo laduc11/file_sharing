@@ -4,7 +4,7 @@ import os
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.188.88"
+IP_DST = "192.168.137.11"
 PORT = 16607
 ADDR = (IP_DST, PORT)
 SIZE = 1024
@@ -34,7 +34,7 @@ def main():
     # Create thread to catch message from another host
 
     while True:
-        # Client recieve request from server
+        # Client receive request from server
         command = client.recv(SIZE).decode(ENCODING)
         command = command.split("$")
         if command[0] == "OK":
@@ -51,7 +51,7 @@ def main():
         command = input("> ")
         command = command.split("$")
 
-        # Check and analize command
+        # Check and analyze command
         if len(command) == 1:
             command = ''.join(command)
         elif len(command) == 2:

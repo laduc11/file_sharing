@@ -6,10 +6,10 @@ class Sql:
         self.db = sql.connect("client_files.db", check_same_thread=False)
         self.table_name = "File_manage"
         self.cursor = self.db.cursor()
-        self.drop_table()
         self.create_table()
 
     def create_table(self):
+        self.drop_table()
         self.cursor.execute(
             f"""CREATE TABLE {self.table_name}(
                 IP_Address char(15),
@@ -37,11 +37,10 @@ class Sql:
     #     self.cursor.execute(f"DELETE FROM {self.table_name} WHERE IP_Address = '{ip}'")
     #     self.db.commit()
 
-    def search_by_filename(self, filename):
+    def list(self):
         self.cursor.execute(f"SELECT * FROM {self.table_name} ")
         rows = self.cursor.fetchall()
-        for row in rows:
-            print(row)
+        return rows
 
     def close_server(self):
         self.db.close()

@@ -27,6 +27,12 @@ def del_file(db, ip, filename):
     db.delete_file(ip, filename)
 
 
+def print_list(list_file):
+    result = ""
+    for file in list_file:
+        result += ' '.join(file) + '\n'
+    return result
+
 # Ping to client
 # Return True if client is online
 def ping(conn):
@@ -87,8 +93,10 @@ def client_handle(conn, addr, db, client_name):
         elif command == "LIST":
             # Send server table to client
             # Syntax "OK$<server table>"
+            list_file = db.list()
+            print(list_file)
             print("list")
-            conn.send("OK$LIST SUCCESSFULLY".encode(ENCODING))
+            conn.send(f"OK${print_list(list_file)}".encode(ENCODING))
         elif command == "DOWNLOAD":
             # Syntax DOWNLOAD$<file_name>&<client's IP>
             # Download the file from client that have <IP>
