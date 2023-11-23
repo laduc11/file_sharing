@@ -4,7 +4,7 @@ import os
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.188.88"
+IP_DST = "10.0.189.56"
 PORT = 16607
 ADDR = (IP_DST, PORT)
 SIZE = 1024
@@ -45,6 +45,8 @@ def main():
         elif command[0] == "PING":
             client.send("ACCEPT".encode(ENCODING))
             continue
+        elif command == "LOCAL":
+            continue
 
         # User send request to server
         # Write command
@@ -83,6 +85,7 @@ def main():
                 
                 if not flag:
                     print("File is invalid")
+                    client.send("LOCAL".encode(ENCODING))
                     continue
                 else:
                     data = file_name
@@ -106,8 +109,11 @@ def main():
             print("CLOSE: disconnect and close the server")
             print("DOWNLOAD$<file_name>&<client's IP>")
             print("LIST: list all the file which the server can reach")
+            print("DIR: list all file in my repository")
+            client.send("LOCAL".encode(ENCODING))
         else:
             print("Syntax Error")
+            client.send("LOCAL".encode(ENCODING))
     
     os._exit(os.EX_OK)
 
