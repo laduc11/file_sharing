@@ -20,9 +20,14 @@ def file_manage():
 
 
 def add_file(db, ip, client_name, filenames):
+    duplicate = []
     filename_list = filenames.split(" ")
     for filename in filename_list:
-        db.add(ip, client_name, filename)
+        try:
+            db.add(ip, client_name, filename)
+        except fm.sql.IntegrityError:
+            duplicate += [filename]
+    return duplicate
 
 
 def del_file(db, ip, filename):
@@ -83,9 +88,15 @@ def client_handle(conn, addr, db, client_name):
             # Data: Name of file which need to be added
             # Client's IP = addr[0]
             # Filename = data
-            add_file(db, addr[0], client_name, data)
+            duplicate = add_file(db, addr[0], client_name, data)
             print("add")
-            conn.send("OK$ADD FILE SUCCESSFULLY".encode(ENCODING))
+            if not duplicate:
+                conn.send("OK$ADD FILE SUCCESSFULLY".encode(ENCODING))
+            else:
+                filenames = "Duplicate files: " + duplicate[0]
+                for i in range(1, len(duplicate)):
+                    filenames += ", " + duplicate[i]
+                conn.send(f"OK$ {filenames}.".encode(ENCODING))
 
         elif command == "DELETE":
             # Delete file from server table
