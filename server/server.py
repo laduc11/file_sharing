@@ -55,7 +55,6 @@ def client_handle(conn, addr, db, client_name):
             command, data = data
         else:
             command = data[0]
-        
 
         if command == "CLOSE":
             # Close the server
