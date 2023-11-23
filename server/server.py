@@ -69,11 +69,13 @@ def client_handle(conn, addr, db, client_name):
             is_close = True
             conn.send(f"DISCONNECTED$Server {ADDR} is closed".encode(ENCODING))
             break
+
         elif command == "LOGOUT":
             # Disconnect to the server
             print(f"Client's IP {addr[0]} is disconnected")
             conn.send(f"DISCONNECTED${addr[0]} disconnected".encode(ENCODING))
             break
+
         elif command == "ADD":
             # Add new file into server table
             # Data: Name of file which need to be added
@@ -82,6 +84,7 @@ def client_handle(conn, addr, db, client_name):
             add_file(db, addr[0], client_name, data)
             print("add")
             conn.send("OK$ADD FILE SUCCESSFULLY".encode(ENCODING))
+
         elif command == "DELETE":
             # Delete file from server table
             # Data: Name of file which need to be deleted
@@ -90,6 +93,7 @@ def client_handle(conn, addr, db, client_name):
             del_file(db, addr[0], data)
             print("delete")
             conn.send("OK$DELETE FILE SUCCESSFULLY".encode(ENCODING))
+
         elif command == "LIST":
             # Send server table to client
             # Syntax "OK$<server table>"
@@ -106,9 +110,15 @@ def client_handle(conn, addr, db, client_name):
             wait = threading.Timer(2.0, lambda:print(conn.recv(SIZE).decode(ENCODING)))
             wait.start()
             
+            # Inform download successfully
             print("download")
             conn.send("OK$Download successfully".encode(ENCODING))
 
+        elif command == "LOCAL":
+            # Command run on client
+            # Server do nothing
+            conn.send("LOCAL".encode(ENCODING))
+            
         print(data)     # DEBUG
     
     conn.close()

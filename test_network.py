@@ -30,4 +30,10 @@ def print_Hello():
 # except Exception:
 #     print("Can not connect to the server")
 
-print("Hello")
+# [(1, 2, 3), ("")]
+data = [("a", "b", "c"), ("1", "2", "3")]
+result = ""
+print(data)
+for a in data:
+    result += ' '.join(a) + '\n'
+print(result)
