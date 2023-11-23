@@ -4,7 +4,7 @@ import os
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.188.88"
+IP_DST = "10.0.189.56"
 PORT = 16607
 ADDR = (IP_DST, PORT)
 SIZE = 1024
