@@ -9,24 +9,26 @@ class Sql:
         self.create_table()
 
     def create_table(self):
-        self.drop_table()
-        self.cursor.execute(
-            f"""CREATE TABLE {self.table_name}(
-                IP_Address char(15),
-                Client_name varchar(30),
-                File_name varchar(30),
-                primary key(IP_Address, File_name))"""
-        )
+        # self.drop_table()
+        try:
+            self.cursor.execute(
+                f"""CREATE TABLE {self.table_name}(
+                    IP_Address char(15),
+                    Client_name varchar(30),
+                    File_name varchar(30),
+                    primary key(IP_Address, File_name))"""
+            )
+        except sql.OperationalError:
+            print("File manage is ready to use")
 
     def drop_table(self):
         self.cursor.execute(f"DROP TABLE IF EXISTS {self.table_name}")
         self.db.commit()
 
     def add(self, ip, client, file):
-        if client != "":
-            self.cursor.execute(
-                f"INSERT INTO {self.table_name}(IP_Address, Client_name, File_name) VALUES('{ip}', '{client}', '{file}')"
-            )
+        self.cursor.execute(
+            f"INSERT INTO {self.table_name}(IP_Address, Client_name, File_name) VALUES('{ip}', '{client}', '{file}')"
+        )
         self.db.commit()
 
     def delete_file(self, ip, file):

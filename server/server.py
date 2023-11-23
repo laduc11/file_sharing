@@ -20,7 +20,9 @@ def file_manage():
 
 
 def add_file(db, ip, client_name, filenames):
-    db.add(ip, client_name, filenames)
+    filename_list = filenames.split(" ")
+    for filename in filename_list:
+        db.add(ip, client_name, filename)
 
 
 def del_file(db, ip, filename):
