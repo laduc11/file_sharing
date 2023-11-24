@@ -6,7 +6,7 @@ import os
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.189.56"
+IP_DST = "192.168.137.11"
 PORT = 16607
 MY_ADDR = (IP, PORT)
 ADDR = (IP_DST, PORT)
@@ -27,6 +27,9 @@ def client_listen(client):
         # Print and kill the client process
         print(command[1])
         exit()
+    elif command[0] == "CLOSE":
+        print(command[1])
+        os._exit(os.EX_OK)
     elif command[0] == "LOCAL":
         # Command was executed
         pass

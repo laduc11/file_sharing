@@ -79,7 +79,7 @@ def client_handle(conn, addr, db, client_name):
             db.close_server()
             print(f"Server {ADDR} is closed")
             is_close = True
-            conn.send(f"DISCONNECTED$Server {ADDR} is closed".encode(ENCODING))
+            conn.send(f"CLOSE$Server {ADDR} is closed".encode(ENCODING))
             break
 
         elif command == "LOGOUT":
