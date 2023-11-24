@@ -1,29 +1,19 @@
-import socket
-import threading
-import os
+# import socket
+# import threading
+# import os
 
-import client_lib
+from client_lib import *
 
-HOST_NAME = socket.gethostname()
-IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.189.56"
-PORT = 16607
-MY_ADDR = (IP, PORT)
-ADDR = (IP_DST, PORT)
-SIZE = 1024
-ENCODING = "utf-8"
-DATA_PATH = "data/"
+# HOST_NAME = socket.gethostname()
+# IP = socket.gethostbyname(HOST_NAME)
+# IP_DST = "10.0.189.56"
+# PORT = 16607
+# MY_ADDR = (IP, PORT)
+# ADDR = (IP_DST, PORT)
+# SIZE = 1024
+# ENCODING = "utf-8"
+# DATA_PATH = "data/"
 
-
-
-# Wait for connection
-def wait(client_host):
-    conn, addr = client_host.accept()
-    data = conn.recv(SIZE).decode(ENCODING)
-    
-    if data == "PING":
-        client_host.send("ACCEPT".encode(ENCODING))
-        client_host.close()
 
 
 
@@ -58,12 +48,12 @@ def main():
 
     # Create socket to listen another client
     host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host_thread = threading.Thread(target=client_lib.host_mode, args=(host,))
+    host_thread = threading.Thread(target=host_mode, args=(host,))
     host_thread.start()
 
     while True:
         # Client receive request from server
-        client_lib.client_listen(client)
+        client_listen(client)
 
         # User send request to server
         # Write command
@@ -81,7 +71,7 @@ def main():
             continue
         
         # Proccess user's command
-        client_lib.client_command(client, command, file_name)
+        client_command(client, command, file_name)
     
     # os._exit(os.EX_OK)
 

@@ -47,4 +47,8 @@ class Sql:
     def close_server(self):
         self.db.close()
 
+    def find(self, ip, file_name):
+        self.cursor.execute(f"SELECT * FROM {self.table_name} WHERE IP_Address = '{ip}' AND File_name = '{file_name}'")
+        rows = self.cursor.fetchall()
+        return bool(len(rows))
 
