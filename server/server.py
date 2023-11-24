@@ -159,6 +159,7 @@ def main():
         conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
+
         thread = threading.Thread(target=client_handle, args=(conn, addr, db, client_name))
         thread.start()
 
