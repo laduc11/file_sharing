@@ -50,40 +50,8 @@ def wait_connect(client):
         
 def main():
     # Create environment
-    server_addr = ADDR
-    print(server_addr)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(ADDR)
-    client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
-
-    # Create socket to listen another client
-    host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host_thread = threading.Thread(target=client_lib.host_mode, args=(host,))
-    host_thread.start()
-
-    while True:
-        # Client receive request from server
-        client_lib.client_listen(client)
-
-        # User send request to server
-        # Write command
-        command = input("> ")
-        command = command.split("$")
-
-        # Check and analyze command
-        file_name = ""
-        if len(command) == 1:
-            command = ''.join(command)
-        elif len(command) == 2:
-            command, file_name = command
-        else:
-            print("Syntax Error")
-            continue
-        
-        # Proccess user's command
-        client_lib.client_command(client, command, file_name)
-    
-    # os._exit(os.EX_OK)
+    client_lib.client_mode(client)
 
 
 if __name__ == "__main__":

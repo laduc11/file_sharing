@@ -5,7 +5,7 @@ import os
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.189.56"
+IP_DST = "10.0.188.88"
 PORT = 16607
 MY_ADDR = (IP, PORT)
 ADDR = (IP_DST, PORT)
@@ -27,7 +27,7 @@ def client_listen(client):
         print(command[1])
         exit()
     elif command[0] == "LOCAL":
-        # Command was excuted
+        # Command was executed
         pass
     elif command == "PING":
         # Reply ping to server
@@ -87,7 +87,7 @@ def client_command(client, command, file_name):
             client.send("LOCAL".encode(ENCODING))
 
         elif command == "HELP":
-            # Print the guildline
+            # Print the guideline
             print("ADD$<file_name>: publish new file from repository to server")
             print("DELETE$<file_name>: delete file from server")
             print("LOGOUT: disconnect to server")
@@ -104,6 +104,7 @@ def client_command(client, command, file_name):
         exit()
 
     return is_continue
+
 
 # Process command from another client or server
 def client_handle(conn):
@@ -127,7 +128,7 @@ def host_mode(host):
             conn.send("ACCEPT".encode(ENCODING))
             continue
         else:
-            # First mesage from another client
+            # First message from another client
             data = data.split('$')
             addr = (data[0], addr[1])
             conn.send("OK$")
@@ -139,6 +140,36 @@ def host_mode(host):
 
 
 # Run client mode
-# Function: receive and send request to server, get and proccess command from user
+# Function: receive and send request to server, get and process command from user
 def client_mode(client):
+    # Create environment
+    server_addr = ADDR
+    print(server_addr)
+    client.connect(ADDR)
+    client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
+
+    while True:
+        # Client receive request from server
+        client_listen(client)
+
+        # User send request to server
+        # Write command
+        command = input("> ")
+        command = command.split("$")
+
+        # Check and analyze command
+        file_name = ""
+        if len(command) == 1:
+            command = ''.join(command)
+        elif len(command) == 2:
+            command, file_name = command
+        else:
+            print("Syntax Error")
+            continue
+
+        # Process user's command
+        client_command(client, command, file_name)
+
+    # os._exit(os.EX_OK)
+
     pass
