@@ -1,6 +1,7 @@
 import socket
 import os
 import threading
+from pythonping import ping
 
 
 IP = socket.gethostbyname(socket.gethostname())
@@ -20,8 +21,8 @@ SIZE = 1024
 # data = (5, 10)
 # print(data[0])
 
-def print_Hello():
-    print("Hello")
+# def print_Hello():
+#     print("Hello")
 
 
 # try:
@@ -31,9 +32,11 @@ def print_Hello():
 #     print("Can not connect to the server")
 
 # [(1, 2, 3), ("")]
-data = [("a", "b", "c"), ("1", "2", "3")]
-result = ""
-print(data)
-for a in data:
-    result += ' '.join(a) + '\n'
-print(result)
+# data = [("a", "b", "c"), ("1", "2", "3")]
+# result = ""
+# print(data)
+# for a in data:
+#     result += ' '.join(a) + '\n'
+# print(result)
+
+ping("google.com")

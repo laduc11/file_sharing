@@ -1,6 +1,7 @@
 import socket
 import os
 import threading
+from pythonping import ping
 # import sys
 
 import file_manage as fm
@@ -39,6 +40,7 @@ def print_list(list_file):
     for file in list_file:
         result += ' '.join(file) + '\n'
     return result
+
 
 # Ping to client
 # Return True if client is online
@@ -122,7 +124,7 @@ def client_handle(conn, addr, db, client_name):
             conn.send("PING".encode(ENCODING))
             wait = threading.Timer(2.0, lambda:print(conn.recv(SIZE).decode(ENCODING)))
             wait.start()
-            
+
             # Inform download successfully
             print("download")
             conn.send("OK$Download successfully".encode(ENCODING))
