@@ -1,6 +1,7 @@
 import socket
 import os
 import threading
+from pythonping import ping
 
 
 IP = socket.gethostbyname(socket.gethostname())
@@ -23,8 +24,8 @@ SIZE = 1024
 # data = (5, 10)
 # print(data[0])
 
-def print_Hello():
-    print("Hello")
+# def print_Hello():
+#     print("Hello")
 
 
 # try:
