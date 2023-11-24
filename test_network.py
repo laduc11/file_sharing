@@ -5,7 +5,10 @@ import threading
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 16607
-ADDR = (IP, PORT)
+IP_DST = "10.0.188.88"
+ADDR = (IP_DST, PORT)
+MY_ADDR = (IP, PORT)
+ENCODING = "utf-8"
 SIZE = 1024
 
 # hostname = socket.gethostname()
@@ -31,9 +34,80 @@ def print_Hello():
 #     print("Can not connect to the server")
 
 # [(1, 2, 3), ("")]
-data = [("a", "b", "c"), ("1", "2", "3")]
-result = ""
-print(data)
-for a in data:
-    result += ' '.join(a) + '\n'
-print(result)
+# data = [("a", "b", "c"), ("1", "2", "3")]
+# result = ""
+# print(data)
+# for a in data:
+#     result += ' '.join(a) + '\n'
+# print(result)
+
+# my_list = []
+# my_list += ["abc"] + ["def"]
+# print(my_list)
+
+
+# Wait another client connect
+def wait_connect(client):
+    client.bind(MY_ADDR)
+    client.listen()
+    print(f"Host {MY_ADDR} is listening")
+    conn, addr = client.accept()
+    data = conn.recv(SIZE).decode(ENCODING)     # Syntax: IP$host_name
+    data = data.split('$')
+    addr = (data[0], addr[1])
+    conn.send(f"Hello {addr} from {MY_ADDR}".encode(ENCODING))
+
+    while True:
+        data = conn.recv(SIZE).decode(ENCODING)
+        if data == "LOGOUT":
+            conn.send("DISCONNECTED$".encode(ENCODING))
+            print(f"{data}")
+            break
+        else: 
+            conn.send("Syntax Error".encode(ENCODING))
+
+    conn.close()
+
+def client_mode(host):
+    try:
+        host.connect(ADDR)
+    except Exception:
+        print("Can not connect to server")
+        exit()
+
+    host.send(f"{IP}${socket.gethostname}".encode(ENCODING))
+    while True:
+        data = host.recv(SIZE).decode(ENCODING)
+        print(data)
+        command = input(">>> ")
+        host.send(f"{command}".encode(ENCODING))
+        if command == "LOGOUT":
+            break
+
+
+host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# try:
+#     host.connect(ADDR)
+# except Exception:
+#     print("Can not connect to server")
+#     exit()
+
+# host.send(f"{IP}${socket.gethostname}".encode(ENCODING))
+# while True:
+#     data = host.recv(SIZE).decode(ENCODING)
+#     print(data)
+#     command = input(">>> ")
+#     host.send(f"{command}".encode(ENCODING))
+#     if command == "LOGOUT":
+#         break
+
+thread1= threading.Thread(target=wait_connect, args=(host,))
+thread1.start()
+
+thread2= threading.Thread(target=client_mode, args=(client,))
+thread2.start()
+
+print("Success")
+
