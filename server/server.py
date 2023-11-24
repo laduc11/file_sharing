@@ -1,7 +1,7 @@
 import socket
 import os
 import threading
-from pythonping import ping
+# from pythonping import ping
 # import sys
 
 import file_manage as fm
@@ -39,6 +39,9 @@ def print_list(list_file):
     result = ""
     for file in list_file:
         result += ' '.join(file) + '\n'
+    result = list(result)
+    del result[-1]
+    result = ''.join(result)
     return result
 
 
@@ -113,9 +116,10 @@ def client_handle(conn, addr, db, client_name):
             # Send server table to client
             # Syntax "OK$<server table>"
             list_file = db.list()
+            list_file = print_list(list_file)
             print(list_file)
             print("list")
-            conn.send(f"OK${print_list(list_file)}".encode(ENCODING))
+            conn.send(f"OK${list_file}".encode(ENCODING))
         elif command == "DOWNLOAD":
             # Syntax DOWNLOAD$<file_name>&<client's IP>
             # Download the file from client that have <IP>
