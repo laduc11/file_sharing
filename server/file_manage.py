@@ -40,7 +40,7 @@ class Sql:
     #     self.db.commit()
 
     def list(self):
-        self.cursor.execute(f"SELECT * FROM {self.table_name} ")
+        self.cursor.execute(f"SELECT * FROM {self.table_name}")
         rows = self.cursor.fetchall()
         return rows
 
