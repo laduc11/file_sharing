@@ -28,7 +28,7 @@ def client_listen(client):
         print(command[1])
         exit()
     elif command[0] == "LOCAL":
-        # Command was excuted
+        # Command was executed
         pass
     elif command == "PING":
         # Reply ping to server
@@ -89,7 +89,7 @@ def client_command(client, command, file_name):
             client.send("LOCAL".encode(ENCODING))
 
         elif command == "HELP":
-            # Print the guildline
+            # Print the guideline
             print("ADD$<file_name>: publish new file from repository to server")
             print("DELETE$<file_name>: delete file from server")
             print("LOGOUT: disconnect to server")
@@ -193,6 +193,36 @@ def host_mode(host):
 
 
 # Run client mode
-# Function: receive and send request to server, get and proccess command from user
+# Function: receive and send request to server, get and process command from user
 def client_mode(client):
+    # Create environment
+    server_addr = ADDR
+    print(server_addr)
+    client.connect(ADDR)
+    client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
+
+    while True:
+        # Client receive request from server
+        client_listen(client)
+
+        # User send request to server
+        # Write command
+        command = input("> ")
+        command = command.split("$")
+
+        # Check and analyze command
+        file_name = ""
+        if len(command) == 1:
+            command = ''.join(command)
+        elif len(command) == 2:
+            command, file_name = command
+        else:
+            print("Syntax Error")
+            continue
+
+        # Process user's command
+        client_command(client, command, file_name)
+
+    # os._exit(os.EX_OK)
+
     pass

@@ -129,8 +129,5 @@ def raise_timeout():
 # meo = input(">>> ")
 # thread.cancel()
 # print(meo)
-file_name = "hai_ngoo.txt"
-data = b"meo meo meo meo"
-DATA_PATH = "client/data/"
-with open(DATA_PATH + file_name, "wb") as download_file:
-    download_file.write(data)
+
+test_multithread()
