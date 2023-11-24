@@ -14,6 +14,7 @@ ENCODING = "utf-8"
 DATA_PATH = "data/"
 
 
+# Client wait for request from server
 def client_listen(client):
     command = client.recv(SIZE).decode(ENCODING)
     command = command.split('$')
@@ -50,7 +51,7 @@ def client_command(client, command, file_name):
         elif command == "ADD":
             # Public file in server
             if file_name == ".":
-            # Public all the file in client repository to server 
+                # Public all the file in client repository to server 
                 data = ' '.join(os.listdir(DATA_PATH))
             else:
                 # Check file name
@@ -103,3 +104,41 @@ def client_command(client, command, file_name):
         exit()
 
     return is_continue
+
+# Process command from another client or server
+def client_handle(conn):
+    pass
+
+
+# Run host mode
+# Function: Ping, receive file from another client
+def host_mode(host):
+    host.bind(MY_ADDR)
+    host.listen()
+    print(f"Client {MY_ADDR} is listening")
+    
+    while True:
+        conn, addr = host.accept()
+        # if server then data = "PING"
+        # if client then data = "Client's IP$host_name"
+        data = conn.recv(SIZE).decode(ENCODING)
+        if data == "PING":
+            # Send confirm message to server
+            conn.send("ACCEPT".encode(ENCODING))
+            continue
+        else:
+            # First mesage from another client
+            data = data.split('$')
+            addr = (data[0], addr[1])
+            conn.send("OK$")
+            # Debug
+            print(f"{MY_ADDR} has connected to {addr}")
+
+        new_client = threading.Thread(target=client_handle, args=(conn,))
+        new_client.start()
+
+
+# Run client mode
+# Function: receive and send request to server, get and proccess command from user
+def client_mode(client):
+    pass

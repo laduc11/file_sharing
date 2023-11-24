@@ -1,7 +1,7 @@
 import socket
 import os
 import threading
-from pythonping import ping
+# from pythonping import ping
 
 
 IP = socket.gethostbyname(socket.gethostname())
@@ -85,30 +85,35 @@ def client_mode(host):
         if command == "LOGOUT":
             break
 
+def test_multithread():
+    host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    thread1= threading.Thread(target=wait_connect, args=(host,))
+    thread1.start()
 
-# try:
-#     host.connect(ADDR)
-# except Exception:
-#     print("Can not connect to server")
-#     exit()
+    thread2= threading.Thread(target=client_mode, args=(client,))
+    thread2.start()
 
-# host.send(f"{IP}${socket.gethostname}".encode(ENCODING))
-# while True:
-#     data = host.recv(SIZE).decode(ENCODING)
-#     print(data)
-#     command = input(">>> ")
-#     host.send(f"{command}".encode(ENCODING))
-#     if command == "LOGOUT":
-#         break
+    print("Success")
 
-thread1= threading.Thread(target=wait_connect, args=(host,))
-thread1.start()
+s = "Be Dipz dang iu\n"
+s =list(s)
+del s[-1]
+s = ''.join(s)
+print(type(s))
 
-thread2= threading.Thread(target=client_mode, args=(client,))
-thread2.start()
 
-print("Success")
+def host_mode():
+    pass
 
+
+def main():
+    host = socket.socket()
+    client = socket.socket()
+
+    host_thread = threading.Thread(target=host_mode,args=(host,))
+    client_thread = threading.Thread(target=client_mode,args=(client,))
+
+    host_thread.start()
+    client_thread.start()
