@@ -161,8 +161,6 @@ def client_handle(client):
             break
     
     client.close()     
-        
-    pass
 
 
 # Run host mode
@@ -178,6 +176,7 @@ def host_mode(host):
         # if server then data = "PING"
         # if client then data = "Client's IP$host_name"
         data = conn.recv(SIZE).decode(ENCODING)
+        
         if data == "PING":
             # Send confirm message to server
             conn.send("ACCEPT".encode(ENCODING))
