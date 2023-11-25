@@ -1,11 +1,12 @@
 import socket
 import threading
 import os
+# import tqdm
 
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.188.88"
+IP_DST = "10.0.189.56"
 PORT = 16607
 MY_ADDR = (IP, PORT)
 ADDR = (IP_DST, PORT)
@@ -76,6 +77,7 @@ def client_command(client, command, file_name):
         elif command == "DOWNLOAD":
             # Fetch the copy file from another client repository
             client.send(f"{command}${file_name}".encode(ENCODING))
+            client_download(client, file_name)
         elif command == "LIST":
             # List  all file in the server table
             print("doing LIST function")
@@ -106,14 +108,64 @@ def client_command(client, command, file_name):
     return is_continue
 
 
+# Download function for client
+def client_download(client, file_name):
+    ip = client.recv(SIZE).decode(ENCODING)
+    host_addr = (ip, PORT)
+    temp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    temp_client.connect(host_addr)
+    thread = threading.Timer(0.05, lambda:temp_client.send(f"CONNECTED${IP}".encode(ENCODING)))
+    thread.start()
+    command = temp_client.recv(SIZE).decode(ENCODING)
+    command = command.split('$')[1]
+    if command != "SUCCESS":
+        temp_client.send("LOGOUT".encode(ENCODING))
+    else:
+        temp_client.send(f"DOWNLOAD${file_name}")
+    
+    done = False
+    data = b""
+    while not done:
+        if data[-5:] == "<END>":
+            done = True
+            del data[-5:]
+
+    with open(DATA_PATH + file_name, "wb") as download_file:
+        download_file.write(data)
+    
+    temp_client.send("LOGOUT".encode(ENCODING))
+    print("DOWNLOAD SUCCESSFULLY")
+    
+
+
 # Process command from another client or server
-def client_handle(conn):
+def client_handle(client):
+    while True:
+        command = client.recv(SIZE).decode(ENCODING)
+        command = command.split('$')
+
+        if len(command) == 2:
+            command, data = command
+        elif len(command) == 1:
+            command = command[0]
+
+        if command == "DOWNLOAD":
+            file_name = data
+            data = open(DATA_PATH + file_name, "rb")
+            client.sendall(data)
+        elif command == "LOGOUT":
+            client.send("DISCONNECTED".encode(ENCODING))
+            break
+    
+    client.close()     
+        
     pass
 
 
 # Run host mode
 # Function: Ping, receive file from another client
 def host_mode(host):
+    host.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     host.bind(MY_ADDR)
     host.listen()
     print(f"Client {MY_ADDR} is listening")
@@ -128,10 +180,11 @@ def host_mode(host):
             conn.send("ACCEPT".encode(ENCODING))
             continue
         else:
-            # First message from another client
+            # First mesage from another client
+            # Syntax CONNECTED$<Client's IP>
             data = data.split('$')
-            addr = (data[0], addr[1])
-            conn.send("OK$")
+            addr = (data[1], addr[1])
+            conn.send("CONNECTED$SUCCESS".encode(ENCODING))
             # Debug
             print(f"{MY_ADDR} has connected to {addr}")
 

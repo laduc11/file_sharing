@@ -1,6 +1,7 @@
 import socket
 import os
 import threading
+
 # from pythonping import ping
 
 
@@ -97,11 +98,11 @@ def test_multithread():
 
     print("Success")
 
-s = "Be Dipz dang iu\n"
-s =list(s)
-del s[-1]
-s = ''.join(s)
-print(type(s))
+# s = "Be Dipz dang iu\n"
+# s =list(s)
+# del s[-1]
+# s = ''.join(s)
+# print(type(s))
 
 
 def host_mode():
@@ -117,3 +118,16 @@ def main():
 
     host_thread.start()
     client_thread.start()
+
+
+def raise_timeout():
+    raise TimeoutError
+
+
+# thread = threading.Timer(2.0, raise_timeout)
+# thread.start()
+# meo = input(">>> ")
+# thread.cancel()
+# print(meo)
+
+test_multithread()
