@@ -1,8 +1,7 @@
 import socket
 import os
 import threading
-
-# from pythonping import ping
+import time
 
 
 IP = socket.gethostbyname(socket.gethostname())
@@ -12,40 +11,6 @@ ADDR = (IP_DST, PORT)
 MY_ADDR = (IP, PORT)
 ENCODING = "utf-8"
 SIZE = 1024
-
-# hostname = socket.gethostname()
-# IPAddr = socket.gethostbyname(socket.gethostname())
-# print(f"Your Computer IP Address is: {IPAddr}" )
-
-# data = "MinhDuc"
-# data = data.split(" ")
-# print(' '.join(os.listdir("client/")))
-# # print(data[1])
-
-# data = (5, 10)
-# print(data[0])
-
-# def print_Hello():
-#     print("Hello")
-
-
-# try:
-#     temp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#     temp.connect(ADDR)
-# except Exception:
-#     print("Can not connect to the server")
-
-# [(1, 2, 3), ("")]
-# data = [("a", "b", "c"), ("1", "2", "3")]
-# result = ""
-# print(data)
-# for a in data:
-#     result += ' '.join(a) + '\n'
-# print(result)
-
-# my_list = []
-# my_list += ["abc"] + ["def"]
-# print(my_list)
 
 
 # Wait another client connect
@@ -123,11 +88,29 @@ def main():
 def raise_timeout():
     raise TimeoutError
 
+# data = b"1234567890"
+# print(data)
+# data = data[:-5]
+# print(data)
+# os._exit(os.EX_OK)
 
-# thread = threading.Timer(2.0, raise_timeout)
-# thread.start()
-# meo = input(">>> ")
-# thread.cancel()
-# print(meo)
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(MY_ADDR)
+server.listen()
+print("Server is listening")
+client, addr = server.accept()
 
-test_multithread()
+while True:
+    msg = client.recv(SIZE).decode(ENCODING)
+    msg = msg.split('$')
+
+    if msg[0] == "CONNECT":
+        client.send(f"SIZE${str(os.path.getsize('client_data/data.txt'))}".encode())
+    elif msg[0] == "OK":
+        client.send("OK".encode(ENCODING))
+        time.sleep(0.05)
+        file_data = open('client_data/data.txt', 'rb').read() + b"<END>"
+        client.sendall(file_data)
+        print("Send successfully")
+
+
