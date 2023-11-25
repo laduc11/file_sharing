@@ -1,8 +1,6 @@
 import socket
 import os
 import threading
-# from pythonping import ping
-# import sys
 
 import file_manage as fm
 
