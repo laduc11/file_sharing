@@ -7,7 +7,7 @@ import time
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "192.168.137.11"
+IP_DST = "10.0.188.88"
 PORT = 16607
 MY_ADDR = (IP, PORT)
 ADDR = (IP_DST, PORT)
