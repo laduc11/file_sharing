@@ -70,8 +70,24 @@ def test_multithread():
 # print(type(s))
 
 
-def host_mode():
-    pass
+def host_mode(server):
+    print("Server is online")
+    server.bind(MY_ADDR)
+    server.listen()
+    print(f"Server is listening in {IP}")
+    while True:
+        conn, addr = server.accept()
+
+        # Get IP and name of client
+        data = conn.recv(SIZE).decode(ENCODING)
+        print(data)
+        ip, client_name = data.split("$")
+        addr = (ip, addr[1])
+        conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
+
+        # Create threads for clients
+        # thread = threading.Thread(target=client_handle, args=(conn, addr, client_name))
+        # thread.start()
 
 
 def main():
@@ -94,23 +110,28 @@ def raise_timeout():
 # print(data)
 # os._exit(os.EX_OK)
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(MY_ADDR)
-server.listen()
-print("Server is listening")
-client, addr = server.accept()
 
-while True:
-    msg = client.recv(SIZE).decode(ENCODING)
-    msg = msg.split('$')
+# server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# server.bind(MY_ADDR)
+# server.listen()
+# print("Server is listening")
+# client, addr = server.accept()
 
-    if msg[0] == "CONNECT":
-        client.send(f"SIZE${str(os.path.getsize('client_data/data.txt'))}".encode())
-    elif msg[0] == "OK":
-        client.send("OK".encode(ENCODING))
-        time.sleep(0.05)
-        file_data = open('client_data/data.txt', 'rb').read() + b"<END>"
-        client.sendall(file_data)
-        print("Send successfully")
+# while True:
+#     msg = client.recv(SIZE).decode(ENCODING)
+#     msg = msg.split('$')
+
+#     if msg[0] == "CONNECT":
+#         client.send(f"SIZE${str(os.path.getsize('client_data/data.txt'))}".encode())
+#     elif msg[0] == "OK":
+#         client.send("OK".encode(ENCODING))
+#         time.sleep(0.05)
+#         file_data = open('client_data/data.txt', 'rb').read() + b"<END>"
+#         client.sendall(file_data)
+#         print("Send successfully")
 
 
+socket.setdefaulttimeout(2)
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(ADDR)
+print("connect successfully")

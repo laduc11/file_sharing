@@ -10,7 +10,7 @@ IP = socket.gethostbyname(HOST_NAME)
 IP_DST = "10.0.188.88"
 PORT = 16607
 MY_ADDR = (IP, PORT)
-ADDR = (IP_DST, PORT)
+ADDR = (IP, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
@@ -92,6 +92,14 @@ def client_command(client, command, file_name):
             print('\n'.join(os.listdir(DATA_PATH)))
             client.send("LOCAL".encode(ENCODING))
 
+        elif command == "DISCOVERY":
+            ip = file_name
+            client.send(f"{command}${ip}".encode(ENCODING))
+
+        elif command == "PING":
+            ip = file_name
+            client.send(f"{command}${ip}".encode(ENCODING))
+
         elif command == "HELP":
             # Print the guideline
             print("ADD$<file_name>: publish new file from repository to server")
@@ -105,8 +113,11 @@ def client_command(client, command, file_name):
         else:
             print("Syntax Error")
             client.send("LOCAL".encode(ENCODING))
-    except ConnectionResetError:
-        print("Server is closed")
+    except WindowsError as er:
+        if er.errno == 10054:
+            print("An existing connection was forcibly closed by the remote host")
+        elif er.errno == 10061:
+            print("The server is inactive")
         exit()
 
     return is_continue
@@ -237,5 +248,3 @@ def client_mode(client):
         client_command(client, command, file_name)
 
     # os._exit(os.EX_OK)
-
-    pass
