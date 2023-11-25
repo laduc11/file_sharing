@@ -52,3 +52,7 @@ class Sql:
         rows = self.cursor.fetchall()
         return bool(len(rows))
 
+    def select_address(self):
+        self.cursor.execute(f"SELECT DISTINCT IP_Address FROM {self.table_name};")
+        rows = self.cursor.fetchall()
+        return rows
