@@ -1,7 +1,7 @@
 import socket
 import os
 import threading
-import time
+# import time
 
 import file_manage as fm
 
@@ -92,9 +92,24 @@ def list_cmd():
 
 
 # DOWNLOAD
-def download_cmd():
-    pass
-
+def download_cmd(data):
+    # Check file existence
+    try:
+        file_name, ip = data.split('&')
+    except ValueError:
+        return "OK$Syntax Error"
+    if not db.find(ip, file_name):
+        return "OK$File is not exist"
+    
+    # Live check client have file
+    ping = ping_cmd(ip)[3:]
+    ping = ping.split(' ')[-1]
+    if ping == "online":
+        msg = f"{ip}"
+    else:
+        msg = f"OK$Can not download file"
+    return msg
+    
 
 # DISCOVERY
 def discovery_cmd(ip):
@@ -167,7 +182,7 @@ def process_command(data, addr, client_name):
         return discovery_cmd(data)
 
     elif command == "DOWNLOAD":
-        return download_cmd()
+        return download_cmd(data)
 
 
 # Receive request from client and reply

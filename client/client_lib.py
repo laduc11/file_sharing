@@ -33,7 +33,7 @@ def client_listen(client):
         os._exit(os.EX_OK)
     elif command[0] == "LOCAL":
         # Command was executed
-        pass
+        return
     elif command == "PING":
         # Reply ping to server
         client.send("ACCEPT".encode(ENCODING))
@@ -82,6 +82,8 @@ def client_command(client, command, file_name):
             # Fetch the copy file from another client repository
             client.send(f"{command}${file_name}".encode(ENCODING))
             client_download(client, file_name)
+            client.send("LOCAL".encode(ENCODING))
+
         elif command == "LIST":
             # List  all file in the server table
             print("doing LIST function")
@@ -126,6 +128,9 @@ def client_command(client, command, file_name):
 # Download function for client
 def client_download(client, file_name):
     ip = client.recv(SIZE).decode(ENCODING)
+    if ip[:2] == "OK":
+        print(ip[3:])
+        return
     host_addr = (ip, PORT)
     temp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     temp_client.connect(host_addr)
@@ -161,7 +166,7 @@ def client_download(client, file_name):
         download_file.write(data)
     
     temp_client.send("LOGOUT".encode(ENCODING))
-    print("DOWNLOAD SUCCESSFULLY")
+    client.send("OK$DOWNLOAD SUCCESSFULLY".encode(ENCODING))
     
 
 

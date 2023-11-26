@@ -11,21 +11,21 @@ def create_file():
 # create_file()
 # os._exit(os.EX_OK)
 
-IP = socket.gethostbyname(socket.gethostname())
-PORT = 16607
-ADDR = (IP, PORT)
-SIZE = 1024
+# IP = socket.gethostbyname(socket.gethostname())
+# PORT = 16607
+# ADDR = (IP, PORT)
+# SIZE = 1024
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-for i in range(5):
-    try:
-        client.connect(ADDR)
-    except WindowsError as er:
-        if er.errno == 10056:
-            print('Socket is already connected.')
-        os._exit(os.EX_OK)
+# client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# for i in range(5):
+#     try:
+#         client.connect(ADDR)
+#     except WindowsError as er:
+#         if er.errno == 10056:
+#             print('Socket is already connected.')
+#         os._exit(os.EX_OK)
 
-    client.send("CONNECT$SUCCESS".encode())
+#     client.send("CONNECT$SUCCESS".encode())
 
 
 # file_size = 0
