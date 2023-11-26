@@ -182,7 +182,7 @@ def client_handle(client):
             pass
         elif command[0] == "OK":
             file_name = command[1]
-            file_data = open(DATA_PATH + file_name.split('&')[0], "rb").read()
+            file_data = open(DATA_PATH + file_name.split('&')[0], "rb").read() + b"<END>"
             client.sendall(file_data)
         elif command[0] == "LOGOUT":
             client.send("DISCONNECTED".encode(ENCODING))
