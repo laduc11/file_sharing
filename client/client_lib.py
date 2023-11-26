@@ -160,7 +160,7 @@ def client_download(client, file_name):
     while not done:
         data += temp_client.recv(SIZE)
         progress.update(SIZE)
-        if data[-5:] == "<END>":
+        if data[-5:] == b"<END>":
             done = True
             data = data[:-5]
 
