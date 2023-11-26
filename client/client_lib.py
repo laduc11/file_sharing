@@ -169,7 +169,6 @@ def client_download(client, file_name):
         download_file.write(data)
     
     temp_client.send("LOGOUT".encode(ENCODING))
-    temp_client.close()
     client.send("OK$DOWNLOAD SUCCESSFULLY".encode(ENCODING))
     
 
@@ -187,11 +186,10 @@ def client_handle(client):
             file_data = open(DATA_PATH + file_name.split('&')[0], "rb").read() + b"<END>"
             client.sendall(file_data)
         elif command[0] == "LOGOUT":
-            # client.send("DISCONNECTED".encode(ENCODING))
+            client.send("DISCONNECTED".encode(ENCODING))
             break
     
-    client.close() 
-    exit(0)    
+    client.close()
 
 
 # Run host mode
