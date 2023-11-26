@@ -109,6 +109,8 @@ def client_command(client, command, file_name):
             print("DOWNLOAD$<file_name>&<client's IP>")
             print("LIST: list all the file which the server can reach")
             print("DIR: list all file in my repository")
+            print("PING$<IP_Address: Ping a client to check if client online or not")
+            print("DISCOVERY: Ping to all clients who share their files on the server")
             client.send("LOCAL".encode(ENCODING))
         else:
             print("Syntax Error")
@@ -129,7 +131,7 @@ def client_download(client, file_name):
     host_addr = (ip, PORT)
     temp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     temp_client.connect(host_addr)
-    thread = threading.Timer(0.05, lambda:temp_client.send(f"CONNECTED${IP}".encode(ENCODING)))
+    thread = threading.Timer(0.05, lambda: temp_client.send(f"CONNECTED${IP}".encode(ENCODING)))
     thread.start()
     command = temp_client.recv(SIZE).decode(ENCODING)
     command = command.split('$')[1]
@@ -163,7 +165,6 @@ def client_download(client, file_name):
     temp_client.send("LOGOUT".encode(ENCODING))
     print("DOWNLOAD SUCCESSFULLY")
     
-
 
 # Process command from another client or server
 def client_handle(client):
@@ -204,7 +205,7 @@ def host_mode(host):
             conn.send("ACCEPT".encode(ENCODING))
             continue
         else:
-            # First mesage from another client
+            # First message from another client
             # Syntax CONNECTED$<Client's IP>
             data = data.split('$')
             addr = (data[1], addr[1])
@@ -222,7 +223,11 @@ def client_mode(client):
     # Create environment
     server_addr = ADDR
     print(server_addr)
-    client.connect(ADDR)
+    try:
+        client.connect(ADDR)
+    except ConnectionRefusedError:
+        print("Connection refused")
+        os._exit(os.EX_OK)
     client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
 
     while True:
