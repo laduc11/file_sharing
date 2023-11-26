@@ -164,7 +164,7 @@ def client_download(client, file_name):
             done = True
             data = data[:-5]
 
-    with open(DATA_PATH + file_name, "wb") as download_file:
+    with open(DATA_PATH + file_name.split('&')[0], "wb") as download_file:
         download_file.write(data)
     
     temp_client.send("LOGOUT".encode(ENCODING))
