@@ -7,10 +7,10 @@ import time
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.188.88"
+IP_DST = "10.0.189.56"
 PORT = 16607
 MY_ADDR = (IP, PORT)
-ADDR = (IP, PORT)
+ADDR = (IP_DST, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
@@ -136,8 +136,8 @@ def client_download(client, file_name):
     host_addr = (ip, PORT)
     temp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     temp_client.connect(host_addr)
-    thread = threading.Timer(0.05, lambda: temp_client.send(f"CONNECTED${IP}".encode(ENCODING)))
-    thread.start()
+    temp_client.send(f"CONNECTED${IP}".encode(ENCODING))
+
     command = temp_client.recv(SIZE).decode(ENCODING)
     command = command.split('$')[1]
     if command != "SUCCESS":
@@ -178,11 +178,11 @@ def client_handle(client):
         command = command.split('$')
 
         if command[0] == "DOWNLOAD":
-            client.send(f"SIZE${str(os.path.getsize(DATA_PATH + file_name))}".encode(ENCODING))
+            client.send(f"SIZE${str(os.path.getsize(DATA_PATH + command[1].split('&')[0]))}".encode(ENCODING))
             pass
         elif command[0] == "OK":
             file_name = command[1]
-            file_data = open(DATA_PATH + file_name, "rb").read()
+            file_data = open(DATA_PATH + file_name.split('&')[0], "rb").read()
             client.sendall(file_data)
         elif command[0] == "LOGOUT":
             client.send("DISCONNECTED".encode(ENCODING))
@@ -217,6 +217,8 @@ def host_mode(host):
             conn.send("CONNECTED$SUCCESS".encode(ENCODING))
             # Debug
             print(f"{MY_ADDR} has connected to {addr}")
+
+            client_handle(conn)
 
         new_client = threading.Thread(target=client_handle, args=(conn,))
         new_client.start()
