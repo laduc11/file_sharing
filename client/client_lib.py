@@ -143,7 +143,7 @@ def client_download(client, file_name):
     if command != "SUCCESS":
         temp_client.send("LOGOUT".encode(ENCODING))
     else:
-        temp_client.send(f"DOWNLOAD${file_name}")
+        temp_client.send(f"DOWNLOAD${file_name}".encode(ENCODING))
     
     while True:
         command = temp_client.recv(SIZE).decode(ENCODING)
