@@ -7,10 +7,10 @@ import tqdm
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "127.0.1.1"
+IP_DST = "10.0.189.56"
 PORT = 16607
 MY_ADDR = (IP, PORT)
-ADDR = (IP, PORT)
+ADDR = (IP_DST, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
@@ -111,6 +111,8 @@ def client_command(client, command, file_name):
             print("DOWNLOAD$<file_name>&<client's IP>")
             print("LIST: list all the file which the server can reach")
             print("DIR: list all file in my repository")
+            print("PING$<IP_Address: Ping a client to check if client online or not")
+            print("DISCOVERY: Ping to all clients who share their files on the server")
             client.send("LOCAL".encode(ENCODING))
         else:
             print("Syntax Error")
@@ -159,17 +161,16 @@ def client_download(client, file_name):
     while not done:
         data += temp_client.recv(SIZE)
         progress.update(SIZE)
-        if data[-5:] == "<END>":
+        if data[-5:] == b"<END>":
             done = True
             data = data[:-5]
 
-    with open(DATA_PATH + file_name, "wb") as download_file:
+    with open(DATA_PATH + file_name.split('&')[0], "wb") as download_file:
         download_file.write(data)
     
     temp_client.send("LOGOUT".encode(ENCODING))
     client.send("OK$DOWNLOAD SUCCESSFULLY".encode(ENCODING))
     
-
 
 # Process command from another client or server
 def client_handle(client):
@@ -178,11 +179,11 @@ def client_handle(client):
         command = command.split('$')
 
         if command[0] == "DOWNLOAD":
-            client.send(f"SIZE${str(os.path.getsize(DATA_PATH + file_name))}".encode(ENCODING))
+            client.send(f"SIZE${str(os.path.getsize(DATA_PATH + command[1].split('&')[0]))}".encode(ENCODING))
             pass
         elif command[0] == "OK":
             file_name = command[1]
-            file_data = open(DATA_PATH + file_name, "rb").read()
+            file_data = open(DATA_PATH + file_name.split('&')[0], "rb").read() + b"<END>"
             client.sendall(file_data)
         elif command[0] == "LOGOUT":
             client.send("DISCONNECTED".encode(ENCODING))
@@ -210,13 +211,15 @@ def host_mode(host):
             conn.send("ACCEPT".encode(ENCODING))
             continue
         else:
-            # First mesage from another client
+            # First message from another client
             # Syntax CONNECTED$<Client's IP>
             data = data.split('$')
             addr = (data[1], addr[1])
             conn.send("CONNECTED$SUCCESS".encode(ENCODING))
             # Debug
             print(f"{MY_ADDR} has connected to {addr}")
+
+            client_handle(conn)
 
         new_client = threading.Thread(target=client_handle, args=(conn,))
         new_client.start()
@@ -228,7 +231,11 @@ def client_mode(client):
     # Create environment
     server_addr = ADDR
     print(server_addr)
-    client.connect(ADDR)
+    try:
+        client.connect(ADDR)
+    except ConnectionRefusedError:
+        print("Connection refused")
+        os._exit(os.EX_OK)
     client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
 
     while True:

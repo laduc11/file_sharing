@@ -128,15 +128,15 @@ def ping_cmd(ip):
         server.connect((ip, PORT))
     except TimeoutError:
         return f"OK${ip} is offline"
-    
+
     server.send("PING".encode(ENCODING))
     if server.recv(SIZE).decode(ENCODING) == "ACCEPT":
         msg = f"OK${ip} is online"
     else:
         msg = f"OK${ip} refuse to connect"
-    
+
     return msg
-        
+
 
 
 # Process command and return reply message client
