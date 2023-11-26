@@ -191,6 +191,13 @@ def client_handle(conn, addr, client_name):
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
         conn.send(process_command(data, addr, client_name).encode(ENCODING))
+        # print(process_command(data, addr, client_name))
+        # try:
+        #     conn.send(process_command(data, addr, client_name).encode(ENCODING))
+        # except Exception:
+        #     print(conn.send(process_command(data, addr, client_name).encode(ENCODING)))
+        #     os._exit(os.EX_OK)
+
         if data[:5] == "CLOSE" or data[:12] == "DISCONNECTED":
             break
 

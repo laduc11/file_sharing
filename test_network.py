@@ -111,27 +111,23 @@ def raise_timeout():
 # os._exit(os.EX_OK)
 
 
-# server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# server.bind(MY_ADDR)
-# server.listen()
-# print("Server is listening")
-# client, addr = server.accept()
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(MY_ADDR)
+server.listen()
+print("Server is listening")
+client, addr = server.accept()
 
-# while True:
-#     msg = client.recv(SIZE).decode(ENCODING)
-#     msg = msg.split('$')
+while True:
+    msg = client.recv(SIZE).decode(ENCODING)
+    msg = msg.split('$')
 
-#     if msg[0] == "CONNECT":
-#         client.send(f"SIZE${str(os.path.getsize('client_data/data.txt'))}".encode())
-#     elif msg[0] == "OK":
-#         client.send("OK".encode(ENCODING))
-#         time.sleep(0.05)
-#         file_data = open('client_data/data.txt', 'rb').read() + b"<END>"
-#         client.sendall(file_data)
-#         print("Send successfully")
+    if msg[0] == "CONNECT":
+        client.send(f"SIZE${str(os.path.getsize('client/data/meo.txt'))}".encode())
+    elif msg[0] == "OK":
+        client.send("OK".encode(ENCODING))
+        time.sleep(0.05)
+        file_data = open('client/data/meo.txt', 'rb').read() + b"<END>"
+        client.sendall(file_data)
+        print("Send successfully")
 
 
-socket.setdefaulttimeout(2)
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(ADDR)
-print("connect successfully")

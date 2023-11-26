@@ -2,12 +2,12 @@ import socket
 import threading
 import os
 import tqdm
-import time
+# import time
 
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.188.88"
+IP_DST = "127.0.1.1"
 PORT = 16607
 MY_ADDR = (IP, PORT)
 ADDR = (IP, PORT)
@@ -27,7 +27,7 @@ def client_listen(client):
         # Syntax: DISCONNECTED$<data need to print>
         # Print and kill the client process
         print(command[1])
-        exit()
+        os._exit(os.EX_OK)
     elif command[0] == "CLOSE":
         print(command[1])
         os._exit(os.EX_OK)
@@ -120,7 +120,8 @@ def client_command(client, command, file_name):
             print("An existing connection was forcibly closed by the remote host")
         elif er.errno == 10061:
             print("The server is inactive")
-        exit()
+        
+        os._exit(os.EX_OK)
 
     return is_continue
 
@@ -134,14 +135,14 @@ def client_download(client, file_name):
     host_addr = (ip, PORT)
     temp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     temp_client.connect(host_addr)
-    thread = threading.Timer(0.05, lambda:temp_client.send(f"CONNECTED${IP}".encode(ENCODING)))
-    thread.start()
+    temp_client.send(f"CONNECTED${IP}".encode(ENCODING))
+    
     command = temp_client.recv(SIZE).decode(ENCODING)
     command = command.split('$')[1]
     if command != "SUCCESS":
         temp_client.send("LOGOUT".encode(ENCODING))
     else:
-        temp_client.send(f"DOWNLOAD${file_name}")
+        temp_client.send(f"DOWNLOAD${file_name}".encode(ENCODING))
     
     while True:
         command = temp_client.recv(SIZE).decode(ENCODING)
