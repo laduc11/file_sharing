@@ -26,10 +26,10 @@ def close_cmd():
 
 
 # LOGOUT
-def logout_cmd(addr):
+def logout_cmd(addr, client_name):
     """Disconnect to server"""
-    print(f"Client's IP {addr[0]} is disconnected")
-    return f"DISCONNECTED${addr[0]} disconnected"
+    print(f"{client_name} {addr[0]} is disconnected")
+    return f"CLOSE${addr[0]} disconnected"
 
 
 # LOCAL
@@ -123,24 +123,24 @@ def discovery_cmd(ip):
 # PING
 def ping_cmd(ip):
     try:
-        socket.setdefaulttimeout(2)
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.settimeout(2)
         server.connect((ip, PORT))
     except TimeoutError:
         return f"OK${ip} is offline"
-
+    
     server.send("PING".encode(ENCODING))
     if server.recv(SIZE).decode(ENCODING) == "ACCEPT":
         msg = f"OK${ip} is online"
     else:
         msg = f"OK${ip} refuse to connect"
-
+    
     return msg
-
+        
 
 
 # Process command and return reply message client
-def process_command(data, addr, client_name):
+def process_command(data, addr, client_name) -> str:
     data = data.split("$")
     if len(data) == 2:
         command, data = data
@@ -151,7 +151,7 @@ def process_command(data, addr, client_name):
         return close_cmd()
 
     elif command == "LOGOUT":
-        return logout_cmd(addr)
+        return logout_cmd(addr, client_name)
 
     elif command == "LOCAL":
         return local_cmd()
@@ -190,17 +190,13 @@ def client_handle(conn, addr, client_name):
     print(f"New connection: {client_name}, {addr[0]}")
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
-        conn.send(process_command(data, addr, client_name).encode(ENCODING))
-        # print(process_command(data, addr, client_name))
-        # try:
-        #     conn.send(process_command(data, addr, client_name).encode(ENCODING))
-        # except Exception:
-        #     print(conn.send(process_command(data, addr, client_name).encode(ENCODING)))
-        #     os._exit(os.EX_OK)
+        if data == "":
+            continue
 
+        msg = process_command(data, addr, client_name)
+        conn.send(msg.encode(ENCODING))
         if data[:5] == "CLOSE" or data[:12] == "DISCONNECTED":
             break
-
 
     conn.close()
     if data[0:5] == "CLOSE":

@@ -108,11 +108,11 @@ def client_command(client, command, file_name):
             print("DELETE$<file_name>: delete file from server")
             print("LOGOUT: disconnect to server")
             print("CLOSE: disconnect and close the server")
-            print("DOWNLOAD$<file_name>&<client's IP>")
+            print("DOWNLOAD$<file_name>&<client's IP>: download file named file_name from another client")
             print("LIST: list all the file which the server can reach")
             print("DIR: list all file in my repository")
-            print("PING$<IP_Address: Ping a client to check if client online or not")
-            print("DISCOVERY: Ping to all clients who share their files on the server")
+            print("PING$<IP_Address>: Ping a client to check if client online or not")
+            print("DISCOVERY$<IP_Address>: list all file in local client repository")
             client.send("LOCAL".encode(ENCODING))
         else:
             print("Syntax Error")
@@ -136,7 +136,13 @@ def client_download(client, file_name):
         return
     host_addr = (ip, PORT)
     temp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    temp_client.connect(host_addr)
+    temp_client.settimeout(2)
+    try:
+        temp_client.connect(host_addr)
+    except TimeoutError:
+        print("Time out")
+        os._exit(os.EX_OK)
+        
     temp_client.send(f"CONNECTED${IP}".encode(ENCODING))
     
     command = temp_client.recv(SIZE).decode(ENCODING)
@@ -189,7 +195,7 @@ def client_handle(client):
             client.send("DISCONNECTED".encode(ENCODING))
             break
     
-    client.close()
+    client.close()     
 
 
 # Run host mode
@@ -232,9 +238,13 @@ def client_mode(client):
     server_addr = ADDR
     print(server_addr)
     try:
+        client.settimeout(2)
         client.connect(ADDR)
     except ConnectionRefusedError:
         print("Connection refused")
+        os._exit(os.EX_OK)
+    except TimeoutError:
+        print("Time out")
         os._exit(os.EX_OK)
     client.send(f"{IP}${HOST_NAME}".encode(ENCODING))
 
