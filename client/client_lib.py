@@ -1,7 +1,8 @@
 import socket
 import threading
 import os
-# import tqdm
+import tqdm
+import time
 
 
 HOST_NAME = socket.gethostname()
@@ -9,7 +10,7 @@ IP = socket.gethostbyname(HOST_NAME)
 IP_DST = "10.0.188.88"
 PORT = 16607
 MY_ADDR = (IP, PORT)
-ADDR = (IP_DST, PORT)
+ADDR = (IP, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
@@ -91,6 +92,14 @@ def client_command(client, command, file_name):
             print('\n'.join(os.listdir(DATA_PATH)))
             client.send("LOCAL".encode(ENCODING))
 
+        elif command == "DISCOVERY":
+            ip = file_name
+            client.send(f"{command}${ip}".encode(ENCODING))
+
+        elif command == "PING":
+            ip = file_name
+            client.send(f"{command}${ip}".encode(ENCODING))
+
         elif command == "HELP":
             # Print the guideline
             print("ADD$<file_name>: publish new file from repository to server")
@@ -104,8 +113,11 @@ def client_command(client, command, file_name):
         else:
             print("Syntax Error")
             client.send("LOCAL".encode(ENCODING))
-    except ConnectionResetError:
-        print("Server is closed")
+    except WindowsError as er:
+        if er.errno == 10054:
+            print("An existing connection was forcibly closed by the remote host")
+        elif er.errno == 10061:
+            print("The server is inactive")
         exit()
 
     return is_continue
@@ -126,12 +138,24 @@ def client_download(client, file_name):
     else:
         temp_client.send(f"DOWNLOAD${file_name}")
     
+    while True:
+        command = temp_client.recv(SIZE).decode(ENCODING)
+        command = command.split('$')
+        if command[0] == "SIZE":
+            file_size = int(command[1])
+            temp_client.send(f"OK${file_name}".encode(ENCODING))
+            break
+
+    # Start download file
     done = False
     data = b""
+    progress = tqdm.tqdm(unit="B", unit_scale=True, unit_divisor=1000, total=file_size)
     while not done:
+        data += temp_client.recv(SIZE)
+        progress.update(SIZE)
         if data[-5:] == "<END>":
             done = True
-            del data[-5:]
+            data = data[:-5]
 
     with open(DATA_PATH + file_name, "wb") as download_file:
         download_file.write(data)
@@ -147,16 +171,14 @@ def client_handle(client):
         command = client.recv(SIZE).decode(ENCODING)
         command = command.split('$')
 
-        if len(command) == 2:
-            command, data = command
-        elif len(command) == 1:
-            command = command[0]
-
-        if command == "DOWNLOAD":
-            file_name = data
-            data = open(DATA_PATH + file_name, "rb")
-            client.sendall(data)
-        elif command == "LOGOUT":
+        if command[0] == "DOWNLOAD":
+            client.send(f"SIZE${str(os.path.getsize(DATA_PATH + file_name))}".encode(ENCODING))
+            pass
+        elif command[0] == "OK":
+            file_name = command[1]
+            file_data = open(DATA_PATH + file_name, "rb").read()
+            client.sendall(file_data)
+        elif command[0] == "LOGOUT":
             client.send("DISCONNECTED".encode(ENCODING))
             break
     
@@ -209,7 +231,7 @@ def client_mode(client):
 
         # User send request to server
         # Write command
-        command = input("> ")
+        command = input(">>> ")
         command = command.split("$")
 
         # Check and analyze command
@@ -226,5 +248,3 @@ def client_mode(client):
         client_command(client, command, file_name)
 
     # os._exit(os.EX_OK)
-
-    pass

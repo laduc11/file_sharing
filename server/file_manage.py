@@ -56,3 +56,9 @@ class Sql:
         self.cursor.execute(f"SELECT DISTINCT IP_Address FROM {self.table_name};")
         rows = self.cursor.fetchall()
         return rows
+
+    def find_by_ip(self, ip):
+        self.cursor.execute(f"SELECT * FROM {self.table_name} WHERE IP_Address = '{ip}'")
+        rows = self.cursor.fetchall()
+        return rows
+

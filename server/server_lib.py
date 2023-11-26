@@ -1,6 +1,7 @@
 import socket
 import os
 import threading
+import time
 
 import file_manage as fm
 
@@ -29,11 +30,6 @@ def logout_cmd(addr):
     """Disconnect to server"""
     print(f"Client's IP {addr[0]} is disconnected")
     return f"DISCONNECTED${addr[0]} disconnected"
-
-
-# DISCONNECTED
-def disconnected_cmd():
-    pass
 
 
 # LOCAL
@@ -101,16 +97,31 @@ def download_cmd():
 
 
 # DISCOVERY
-def discovery_cmd():
-    list_address = db.select_address()
-    # res = ""
-    # for address in list_address:
-    #     res += address[0] + "\n"
-
+def discovery_cmd(ip):
+    list_file = db.find_by_ip(ip)
+    data = ""
+    for file in list_file:
+        data += ' '.join(file) + '\n'
+    data = data[:-1]
+    return f"OK${data}"
 
 # PING
 def ping_cmd(ip):
-    pass
+    try:
+        socket.setdefaulttimeout(2)
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect((ip, PORT))
+    except TimeoutError:
+        return f"OK${ip} is offline"
+
+    server.send("PING".encode(ENCODING))
+    if server.recv(SIZE).decode(ENCODING) == "ACCEPT":
+        msg = f"OK${ip} is online"
+    else:
+        msg = f"OK${ip} refuse to connect"
+
+    return msg
+
 
 
 # Process command and return reply message client
@@ -153,7 +164,7 @@ def process_command(data, addr, client_name):
         return ping_cmd(data)
 
     elif command == "DISCOVERY":
-        return discovery_cmd()
+        return discovery_cmd(data)
 
     elif command == "DOWNLOAD":
         return download_cmd()
@@ -165,7 +176,9 @@ def client_handle(conn, addr, client_name):
     while True:
         data = conn.recv(SIZE).decode(ENCODING)
         conn.send(process_command(data, addr, client_name).encode(ENCODING))
-        break
+        if data[:5] == "CLOSE" or data[:12] == "DISCONNECTED":
+            break
+
 
     conn.close()
     if data[0:5] == "CLOSE":
@@ -189,6 +202,5 @@ def create_server(server):
         conn.send(f"OK$Welcome {addr} to {ADDR}".encode(ENCODING))
 
         # Create threads for clients
-
         thread = threading.Thread(target=client_handle, args=(conn, addr, client_name))
         thread.start()
