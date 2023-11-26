@@ -103,8 +103,10 @@ def download_cmd():
 # DISCOVERY
 def discovery_cmd():
     list_address = db.select_address()
-    for address in list_address:
-        print(address[0])
+    # res = ""
+    # for address in list_address:
+    #     res += address[0] + "\n"
+
 
 # PING
 def ping_cmd(ip):
