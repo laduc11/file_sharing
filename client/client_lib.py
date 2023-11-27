@@ -53,12 +53,16 @@ def client_listen(client):
         client.send("ACCEPT".encode(ENCODING))
 
 
-def client_command(client, command, file_name):
+def client_command(client, command, file_name, is_admin):
     is_continue = False
     try:
         # Finite state machine
         if command == "CLOSE":
             # Close server
+            if not is_admin:
+                print("You can not close the server")
+                client.send("LOCAL".encode(ENCODING))
+                return
             print("Server is closing")
             client.send(command.encode(ENCODING))
 
@@ -116,6 +120,14 @@ def client_command(client, command, file_name):
             ip = file_name
             client.send(f"{command}${ip}".encode(ENCODING))
 
+        elif command == "CLEAR":
+            if not is_admin:
+                print("You are not an admin")
+                client.send("LOCAL".encode(ENCODING))
+                return
+            print("Clear database")
+            client.send("CLEAR".encode(ENCODING))
+
         elif command == "HELP":
             # Print the guideline
             print("ADD$<file_name>: publish new file from repository to server")
@@ -127,6 +139,7 @@ def client_command(client, command, file_name):
             print("DIR: list all file in my repository")
             print("PING$<IP_Address>: Ping a client to check if client online or not")
             print("DISCOVERY$<IP_Address>: list all file in local client repository")
+            print("CLEAR: delete all data in table")
             client.send("LOCAL".encode(ENCODING))
         else:
             print("Syntax Error")
@@ -179,8 +192,9 @@ def client_download(client, file_name):
     data = b""
     progress = tqdm.tqdm(unit="B", unit_scale=True, unit_divisor=1000, total=file_size)
     while not done:
-        data += temp_client.recv(SIZE)
-        progress.update(SIZE)
+        recv = temp_client.recv(SIZE)
+        data += recv
+        progress.update(len(recv))
         if data[-5:] == b"<END>":
             done = True
             data = data[:-5]
@@ -253,7 +267,7 @@ def host_mode(host):
 
 # Run client mode
 # Function: receive and send request to server, get and process command from user
-def client_mode(client, server_ip):
+def client_mode(client, server_ip, is_admin):
     # Create environment
     server_addr = (server_ip, PORT)
     print(server_addr)
@@ -288,6 +302,6 @@ def client_mode(client, server_ip):
             continue
 
         # Process user's command
-        client_command(client, command, file_name)
+        client_command(client, command, file_name, is_admin)
 
     # os._exit(os.EX_OK)

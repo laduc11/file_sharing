@@ -15,7 +15,7 @@ DATA_PATH = "data/"
 db = fm.Sql()
 
 
-# 10 Types of command receive
+# Types of command receive
 # Return message after processing the command
 # CLOSE
 def close_cmd():
@@ -138,7 +138,11 @@ def ping_cmd(ip):
     
     return msg
         
-
+# CLEAR
+def clear_cmd():
+    db.drop_table()
+    db.create_table()
+    return "OK$CLEAR DATABASE SUCCESSFULLY"
 
 # Process command and return reply message client
 def process_command(data, addr, client_name) -> str:
@@ -175,6 +179,9 @@ def process_command(data, addr, client_name) -> str:
         # Send server table to client
         # Syntax "OK$<server table>"
         return list_cmd()
+    
+    elif command == "CLEAR":
+        return clear_cmd()
 
     elif command == "PING":
         return ping_cmd(data)
