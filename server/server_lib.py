@@ -106,6 +106,7 @@ def download_cmd(data):
     ping = ping.split(' ')[-1]
     if ping == "online":
         msg = f"{ip}"
+        print(f"Download {file_name} from {ip}")
     else:
         msg = f"OK$Can not download file"
     return msg
@@ -195,11 +196,11 @@ def client_handle(conn, addr, client_name):
 
         msg = process_command(data, addr, client_name)
         conn.send(msg.encode(ENCODING))
-        if data[:5] == "CLOSE" or data[:12] == "DISCONNECTED":
+        if data == "LOGOUT" or data == "CLOSE":
             break
 
     conn.close()
-    if data[0:5] == "CLOSE":
+    if data == "CLOSE":
         os._exit(os.EX_OK)
 
 

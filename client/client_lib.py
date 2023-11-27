@@ -175,13 +175,19 @@ def client_download(client, file_name):
         download_file.write(data)
     
     temp_client.send("LOGOUT".encode(ENCODING))
-    client.send("OK$DOWNLOAD SUCCESSFULLY".encode(ENCODING))
+    # client.send("OK$DOWNLOAD SUCCESSFULLY".encode(ENCODING))
     
 
 # Process command from another client or server
 def client_handle(client):
     while True:
-        command = client.recv(SIZE).decode(ENCODING)
+        try:
+            command = client.recv(SIZE).decode(ENCODING)
+        except WindowsError as er:
+            if er.errno == 10038:
+                return
+            else:
+                print(f"Window error code {er.errno}")
         command = command.split('$')
 
         if command[0] == "DOWNLOAD":
@@ -192,10 +198,10 @@ def client_handle(client):
             file_data = open(DATA_PATH + file_name.split('&')[0], "rb").read() + b"<END>"
             client.sendall(file_data)
         elif command[0] == "LOGOUT":
-            client.send("DISCONNECTED".encode(ENCODING))
-            break
-    
-    client.close()     
+            client.close()
+            return
+            
+       
 
 
 # Run host mode
