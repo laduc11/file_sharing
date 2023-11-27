@@ -32,7 +32,11 @@ def is_ip_valid(ip):
 
 # Client wait for request from server
 def client_listen(client):
-    command = client.recv(SIZE).decode(ENCODING)
+    try:
+        client.settimeout(10)
+        command = client.recv(SIZE).decode(ENCODING)
+    except TimeoutError:
+        return
     command = command.split('$')
     if command[0] == "OK":
         # Syntax: OK$<data need to print>
@@ -196,7 +200,7 @@ def client_download(client, file_name):
                          unit_divisor=1024, 
                          total=file_size, 
                          desc=f"{file_name.split('&')[0]}")
-    download_file = open("data_recv/" + file_name.split('&')[0], "a+b")
+    download_file = open(DATA_PATH + file_name.split('&')[0], "a+b")
     while not done:
         recv = temp_client.recv(SIZE)
         progress.update(len(recv))
