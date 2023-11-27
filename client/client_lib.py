@@ -7,13 +7,27 @@ import tqdm
 
 HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
-IP_DST = "10.0.189.56"
 PORT = 16607
 MY_ADDR = (IP, PORT)
-ADDR = (IP_DST, PORT)
 SIZE = 1024
 ENCODING = "utf-8"
 DATA_PATH = "data/"
+
+# IP_DST = "10.0.189.56"
+# ADDR = (IP_DST, PORT)
+
+# Check the correctness of IP
+def is_ip_valid(ip):
+    nums = ip.split('.')
+    if len(nums) != 4:
+        return False
+    try:
+        for num in nums:
+            if int(num) < 0 or int(num) > 255:
+                return False
+    except Exception:
+        return False
+    return True
 
 
 # Client wait for request from server
@@ -239,13 +253,13 @@ def host_mode(host):
 
 # Run client mode
 # Function: receive and send request to server, get and process command from user
-def client_mode(client):
+def client_mode(client, server_ip):
     # Create environment
-    server_addr = ADDR
+    server_addr = (server_ip, PORT)
     print(server_addr)
     try:
         client.settimeout(2)
-        client.connect(ADDR)
+        client.connect(server_addr)
     except ConnectionRefusedError:
         print("Connection refused")
         os._exit(os.EX_OK)
