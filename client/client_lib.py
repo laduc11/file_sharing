@@ -9,7 +9,7 @@ HOST_NAME = socket.gethostname()
 IP = socket.gethostbyname(HOST_NAME)
 PORT = 16607
 MY_ADDR = (IP, PORT)
-SIZE = 1024
+SIZE = 1024*1024*2
 ENCODING = "utf-8"
 DATA_PATH = "data/"
 
@@ -54,7 +54,7 @@ def client_listen(client):
 
 
 def client_command(client, command, file_name, is_admin):
-    is_continue = False
+    # is_continue = False
     try:
         # Finite state machine
         if command == "CLOSE":
@@ -87,7 +87,8 @@ def client_command(client, command, file_name, is_admin):
                 if not flag:
                     print("File is invalid")
                     client.send("LOCAL".encode(ENCODING))
-                    is_continue = True
+                    return
+                    # is_continue = True
                 else:
                     data = file_name
 
@@ -152,7 +153,7 @@ def client_command(client, command, file_name, is_admin):
         
         os._exit(os.EX_OK)
 
-    return is_continue
+    # return is_continue
 
 
 # Download function for client
@@ -189,19 +190,29 @@ def client_download(client, file_name):
 
     # Start download file
     done = False
-    data = b""
-    progress = tqdm.tqdm(unit="B", unit_scale=True, unit_divisor=1000, total=file_size)
+    temp_client.settimeout(10)
+    progress = tqdm.tqdm(unit="B", 
+                         unit_scale=True, 
+                         unit_divisor=1024, 
+                         total=file_size, 
+                         desc=f"{file_name.split('&')[0]}")
+    download_file = open("data_recv/" + file_name.split('&')[0], "a+b")
     while not done:
         recv = temp_client.recv(SIZE)
-        data += recv
         progress.update(len(recv))
-        if data[-5:] == b"<END>":
-            done = True
-            data = data[:-5]
+        download_file.write(recv)
 
-    with open(DATA_PATH + file_name.split('&')[0], "wb") as download_file:
-        download_file.write(data)
+        download_file.seek(-5, 1)
+        if download_file.read() ==  b"<END>":
+            done = True
+            download_file.seek(-1, 1)
+            for i in range (5):
+                download_file.write(b'')
+            pass
     
+    download_file.close()
+    
+    temp_client.settimeout(2)
     temp_client.send("LOGOUT".encode(ENCODING))
     # client.send("OK$DOWNLOAD SUCCESSFULLY".encode(ENCODING))
     
